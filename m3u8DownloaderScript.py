@@ -4,7 +4,7 @@ import shutil
 import requests
 from urllib.parse import urljoin, urlparse
 
-VIDEO_NUMBERS = range(1, 10 + 1)
+VIDEO_NUMBERS = range(4, 10 + 1)
 RESOLUTION = "480p"  # only download 480p
 
 BASE_URL_TEMPLATE = "https://video.acharyaprashant.org/love-and-lust/love-and-lust-video-{vid}/playlist.m3u8"
