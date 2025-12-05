@@ -11,6 +11,9 @@ OUTPUT_ROOT = "output_videos"
 # TARGET_RESOLUTIONS = ["240p", "480p"]
 TARGET_RESOLUTIONS = ["240p"]
 
+# Whether to also create a black-screen version of each final video
+MAKE_BLACK_COPY = True
+
 session = requests.Session()
 session.headers.update({"User-Agent": "Mozilla/5.0"})
 
@@ -48,6 +51,7 @@ def get_ts_segments(pl_url):
 
     segments = []
     for line in resp.text.splitlines():
+        line = line.strip()
         if line and not line.startswith("#"):
             segments.append(urljoin(pl_url, line))
     return segments
@@ -69,11 +73,38 @@ def download_segments(seg_urls, folder):
             r.raise_for_status()
             with open(filename, "wb") as f:
                 for chunk in r.iter_content(1024 * 8):
-                    f.write(chunk)
+                    if chunk:
+                        f.write(chunk)
             print(f"    Downloaded {i}/{total}")
 
         except Exception as e:
             print(f"    Error downloading segment {i}: {e}")
+
+
+def make_black_screen_copy(mp4_path: str):
+    """
+    Create a black-screen version (audio only from original, synthetic black video).
+    """
+    black_mp4_path = mp4_path.replace(".mp4", "_black.mp4")
+    print(f"    Creating black-screen version (fast): {black_mp4_path}")
+
+    cmd_black = [
+        "ffmpeg", "-y",
+        "-i", mp4_path,                               # original (we use only audio)
+        "-f", "lavfi", "-i", "color=black:s=426x240:r=25",  # synthetic black video
+        "-map", "1:v",                                # video from color source
+        "-map", "0:a",                                # audio from original
+        "-shortest",                                  # stop when audio ends
+        "-c:v", "libx264",
+        "-c:a", "copy",
+        black_mp4_path,
+    ]
+
+    try:
+        subprocess.run(cmd_black, check=True)
+        print(f"    ✔ Created black-screen video: {black_mp4_path}")
+    except subprocess.CalledProcessError as e:
+        print("    ffmpeg (black-screen) failed:", e)
 
 
 def merge_to_mp4(folder, mp4_path):
@@ -100,11 +131,16 @@ def merge_to_mp4(folder, mp4_path):
     try:
         subprocess.run(cmd, check=True)
         print(f"    ✔ Created: {mp4_path}")
-        return True
-
+        success = True
     except subprocess.CalledProcessError as e:
         print("    ffmpeg failed:", e)
-        return False
+        success = False
+
+    # Optionally create a black-screen copy
+    if success and MAKE_BLACK_COPY:
+        make_black_screen_copy(mp4_path)
+
+    return success
 
 
 def process_video_from_url(input_url: str):
@@ -149,12 +185,12 @@ def main(url_list):
 
 if __name__ == "__main__":
     SAMPLE_URLS = [
-        # "https://video1.acharyaprashant.org/courses/2023-12-12/2019-10-20-sangharsh-part4-351e2bd/240p.m3u8",
-        "https://video1.acharyaprashant.org/courses/2023-12-12/2019-07-03-sangharsh-part5-4dde005/240p.m3u8",
-        "https://video1.acharyaprashant.org/courses/2023-12-12/23-01-28-sangharsh-part6-53d79a5/240p.m3u8",
-        "https://video1.acharyaprashant.org/courses/2023-12-09/2019-09-14-sangharsh-part7-7e8c3bc/240p.m3u8",
-        "https://video1.acharyaprashant.org/courses/2023-12-09/2022-06-21-sangharsh-part8-587699b/240p.m3u8",
-    ]
+    "https://video1.acharyaprashant.org/courses/2022-01-28/nu13-video-1-8cf9016/240p.m3u8",
+    "https://video1.acharyaprashant.org/courses/2022-01-28/nu13-video-2-27fb0b3/240p.m3u8",
+    "https://video1.acharyaprashant.org/courses/2022-01-28/nu13-video-3-56a8e57/240p.m3u8",
+    "https://video1.acharyaprashant.org/courses/2022-01-28/nu13-video-4-86bf1ca/240p.m3u8",
+    "https://video1.acharyaprashant.org/courses/2022-01-29/nu13-video-5-cf682fd/240p.m3u8",
+]
 
     main(SAMPLE_URLS)
 
