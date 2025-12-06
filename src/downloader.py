@@ -21,8 +21,15 @@ def download_one_url(
     url: str,
     make_black: bool = True,
     use_gpu: bool = False,
+    folder_override = None,
 ):
-    folder_name, video_name = parse_url_parts(url)
+    # folder_name: either from args (list mode) or parsed from URL (template mode)
+    if folder_override:
+        # only take video_name from URL
+        _, video_name = parse_url_parts(url)
+        folder_name = folder_override
+    else:
+        folder_name, video_name = parse_url_parts(url)
 
     final_folder = os.path.join(OUTPUT_ROOT, folder_name)
     ensure_dir(final_folder)
@@ -57,6 +64,10 @@ def main():
     p_list = sub.add_parser("list", help="Download from a list of URLs")
     p_list.add_argument("--url", action="append", help="URL (can be repeated)")
     p_list.add_argument("--file", help="File with one URL per line")
+    p_list.add_argument(
+        "--folder",
+        help="Folder name under OUTPUT_ROOT where all these URLs will be saved",
+    )
 
     # Common options
     parser.add_argument("--no-black", action="store_true", help="Skip black video creation")
@@ -69,7 +80,7 @@ def main():
     use_gpu = args.use_gpu
 
     # Build list of URLs depending on mode
-    urls = []
+    urls: list[str] = []
 
     if args.mode == "template":
         urls = list(build_urls_from_template(args.template, args.start, args.end))
@@ -89,15 +100,22 @@ def main():
 
     # Remove duplicates while preserving order
     seen = set()
-    unique_urls = []
+    unique_urls: list[str] = []
     for u in urls:
         if u not in seen:
             seen.add(u)
             unique_urls.append(u)
 
+    folder_override = getattr(args, "folder", None) if args.mode == "list" else None
+
     # Run in parallel
     run_in_parallel(
-        lambda u: download_one_url(u, make_black=make_black, use_gpu=use_gpu),
+        lambda u: download_one_url(
+            u,
+            make_black=make_black,
+            use_gpu=use_gpu,
+            folder_override=folder_override,
+        ),
         unique_urls,
         max_workers=args.workers,
     )
