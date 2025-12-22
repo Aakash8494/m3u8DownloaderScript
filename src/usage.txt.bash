@@ -4,8 +4,18 @@ python downloader.py template \
   --start 1 --end 20
 
 python downloader.py list \
-  --folder "depression-ke-kaaran-aur-ilaz" \
-  --url "https://video.acharyaprashant.org/depression-ke-kaaran-aur-ilaz/depression-ke-kaaran-aur-ilaz-video-1-v1/240p.m3u8" \
+  --folder "Video Series: Meditation in The Truest Sense" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-21/bge6-video-1-4707135/240p.m3u8" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-21/bge6-video-2-e925f95/240p.m3u8" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-21/bge6-video-3-e7c503e/240p.m3u8" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-23/bge7-video-1-bdfe3a9/240p.m3u8" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-23/bge7-video-2-0c6b6a6/240p.m3u8" \
+  --url "https://video1.acharyaprashant.org/courses/2021-11-23/bge7-video-3-ae7d930/240p.m3u8" \
+  --url "" \
+  --url "" \
+  --url "" \
+  --url "" \
+  --url "" \
   --url ""
 
 python downloader.py list --file urls.txt

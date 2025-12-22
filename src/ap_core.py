@@ -143,3 +143,50 @@ def run_in_parallel(func, items, max_workers: int = 2):
                 f.result()
             except Exception as e:
                 print(f"❌ Error processing {futures[f]}: {e}")
+
+
+
+def create_black_video_from_audio(
+    path: str,
+    overwrite: bool = False,
+    use_gpu: bool = False,
+):
+    """
+    Convert an audio file (.opus) into a black video with silent audio.
+    Output: audio.opus -> audio_black.mp4
+    """
+
+    base, _ = os.path.splitext(path)
+    output = f"{base}_black.mp4"
+
+    if not overwrite and os.path.exists(output):
+        print(f"⏭️  Skipping (exists): {output}")
+        return
+
+    video_filter = "color=c=black:s=1280x720:r=30"
+
+    cmd = [
+        "ffmpeg",
+        "-y" if overwrite else "-n",
+        "-f", "lavfi",
+        "-i", video_filter,   # black video source
+        "-i", path,           # audio input
+        "-shortest",          # match audio duration
+        "-map", "0:v:0",
+        "-map", "1:a:0",
+        "-c:v", "libx264",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        output,
+    ]
+
+    try:
+        subprocess.run(
+            cmd,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        print(f"⬛ Black video created from audio: {output}")
+    except subprocess.CalledProcessError:
+        print(f"❌ Failed to process audio: {path}")
