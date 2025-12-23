@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 from ap_core import (
     parse_url_parts,
@@ -11,12 +12,7 @@ from ap_core import (
 OUTPUT_ROOT = "output_videos"
 
 def download_item(item_data, make_black=True, use_gpu=False, folder_override=None):
-    """
-    item_data is a tuple: (url, custom_name)
-    """
     url, custom_name = item_data
-    
-    # Logic to determine folder and filename
     parsed_folder, parsed_name = parse_url_parts(url)
     
     folder_name = folder_override if folder_override else parsed_folder
@@ -40,7 +36,6 @@ def download_item(item_data, make_black=True, use_gpu=False, folder_override=Non
 def main():
     parser = argparse.ArgumentParser(description="AP video downloader (List Mode)")
     
-    # Arguments
     parser.add_argument("--url", action="append", help="Format: 'URL' or 'URL|filename'")
     parser.add_argument("--file", help="Text file with one 'URL|filename' per line")
     parser.add_argument("--folder", help="Target subfolder name")
@@ -50,20 +45,28 @@ def main():
 
     args = parser.parse_args()
 
-    # Collect raw inputs
+    # --- NEW: Folder Existence Check ---
+    if args.folder:
+        target_path = os.path.join(OUTPUT_ROOT, args.folder)
+        if os.path.exists(target_path):
+            print(f"Aborting: Folder '{args.folder}' already exists in {OUTPUT_ROOT}.")
+            sys.exit(0) 
+
     raw_inputs = []
     if args.url:
         raw_inputs.extend(args.url)
     if args.file:
-        with open(args.file, "r", encoding="utf-8") as f:
-            raw_inputs.extend([line.strip() for line in f if line.strip()])
+        try:
+            with open(args.file, "r", encoding="utf-8") as f:
+                raw_inputs.extend([line.strip() for line in f if line.strip()])
+        except FileNotFoundError:
+            print(f"Error: File '{args.file}' not found.")
+            return
 
     if not raw_inputs:
         print("No URLs provided.")
         return
 
-    # Parse URLs and optional custom names
-    # Returns list of tuples: [ (url, name), (url, name) ]
     tasks = []
     seen_urls = set()
     for entry in raw_inputs:
