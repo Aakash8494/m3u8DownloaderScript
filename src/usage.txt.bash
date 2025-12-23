@@ -57,3 +57,13 @@ python downloader.py list --file urls.txt
 #   --template "https://video.acharyaprashant.org/love-and-lust/love-and-lust-video-{vid}/240p.m3u8" \
 #   --template "https://video.acharyaprashant.org/prem-aur-hawas/prem-aur-hawas-video-{vid}/240p.m3u8" \
 #   --template "https://video.acharyaprashant.org/jesus-english/jesus-english-video-{vid}/240p.m3u8" \
+
+
+
+python downloader.py \
+  --folder "Video Series: Truth: Your Ultimate Destiny" \
+  --url "https://video1.acharyaprashant.org/courses/2021-12-14/bge16-video-1-b459076/240p.m3u8|1.Truth_illuminates_your_Path_towards_Truth" \
+  --url "https://video1.acharyaprashant.org/courses/2021-12-14/bge16-video-2-6f19350/240p.m3u8|2.Purposeless_Action_is_Possible" \
+  --url "https://video1.acharyaprashant.org/courses/2021-12-14/bge16-video-3-0de00c5/240p.m3u8|3.The_fine_Line_between_Sāttvika_and_Tāmsika_Action" \
+  --url "https://video1.acharyaprashant.org/courses/2021-12-14/bge16-video-4-b3747b3/240p.m3u8|4.Nothing_is_Right_or_Wrong,_Says_todays_Pop_Spirituality!" \
+  --url "https://video1.acharyaprashant.org/courses/2021-12-14/bge16-video-5-211ce96/240p.m3u8|5.Why_do_Innocent_People_Suffer?"
