@@ -9,7 +9,7 @@ from ap_core import (
 )
 
 VIDEO_EXTENSIONS = (".mp4", ".mkv", ".mov", ".m4v")
-AUDIO_AS_VIDEO_EXTENSIONS = (".opus",)
+AUDIO_AS_VIDEO_EXTENSIONS = (".opus", ".m4a", ".mp3", ".wav")
 
 
 def is_video_file(name: str) -> bool:
