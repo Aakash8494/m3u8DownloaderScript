@@ -1,42 +1,51 @@
 import os
+import sys
 
 def rename_folders(target_path):
-    # We check for both the slash and common replacements like a colon or dash
-    junk_prefixes = ["वीडियो श्रृंखला/", "Video Series/", "वीडियो श्रृंखला", "Video Series"]
+    # 1. Standardize the path
+    target_path = os.path.abspath(target_path)
+    
+    # 2. Define the exact strings to remove
+    # Note: On macOS, slashes in names are often stored as colons ':' internally
+    junk_prefixes = ["वीडियो श्रृंखला/ ", "Video Series/ ","वीडियो श्रृंखला: ", "Video Series: ", "वीडियो श्रृंखला/", "Video Series/", "वीडियो श्रृंखला:", "Video Series:"]
     
     print(f"--- Scanning directory: {target_path} ---")
     
-    found_any = False
-    for folder_name in os.listdir(target_path):
+    if not os.path.exists(target_path):
+        print(f"[ERROR] Path does not exist: {target_path}")
+        return
+
+    items = os.listdir(target_path)
+    if not items:
+        print("[NOTICE] Folder is empty.")
+        return
+
+    for folder_name in items:
         full_path = os.path.join(target_path, folder_name)
 
         if os.path.isdir(full_path):
-            found_any = True
             new_name = folder_name
             
-            # Check for matches
-            matched_prefix = None
             for prefix in junk_prefixes:
                 if folder_name.startswith(prefix):
-                    matched_prefix = prefix
                     new_name = folder_name.replace(prefix, "").strip()
-                    break # Stop looking once we find a match
+                    break
             
             if new_name != folder_name:
                 new_path = os.path.join(target_path, new_name)
                 try:
                     os.rename(full_path, new_path)
-                    print(f"[SUCCESS] Renamed: '{folder_name}' -> '{new_name}'")
+                    print(f"[SUCCESS] '{folder_name}' -> '{new_name}'")
                 except Exception as e:
-                    print(f"[ERROR]   Could not rename '{folder_name}': {e}")
+                    print(f"[ERROR] Failed to rename '{folder_name}': {e}")
             else:
-                print(f"[SKIPPED] No match found for: '{folder_name}'")
-    
-    if not found_any:
-        print("[NOTICE]  No folders were found in this directory at all.")
-    print("--- Scan Complete ---")
+                print(f"[DEBUG] No prefix match for: '{folder_name}'")
 
 if __name__ == "__main__":
-    # This gets the folder where the script is saved
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    rename_folders(current_dir)
+    # This logic now correctly takes the folder from your terminal command
+    if len(sys.argv) > 1:
+        folder_to_clean = sys.argv[1]
+    else:
+        folder_to_clean = os.getcwd()
+        
+    rename_folders(folder_to_clean)
