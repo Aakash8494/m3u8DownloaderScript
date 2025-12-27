@@ -4,7 +4,7 @@
 
     console.log("Starting extraction... Results will be saved to a file.");
 
-    const courseTitle = document.querySelector('#course-stages .z-10 > div > div > div')?.innerText || "Downloaded_Course";
+    const courseTitle = document.querySelector('#course-stages .z-10 > div > div > div')?.innerText.replace("वीडियो श्रृंखला/", "").replace("Video Series/", "").replace("वीडियो श्रृंखला:", "").replace("Video Series:", "").trim() || "Downloaded_Course";
     const videoElements = document.querySelectorAll('[id^="video-0-"]');
 
     // Initialize the command string
@@ -12,7 +12,7 @@
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (let i = 0; i < videoElements.length / 2; i++) {
+    for (let i = videoElements.length / 2; i >= 0; i--) {
         const row = videoElements[i];
         const titleEl = row.querySelector('div > div > p');
 

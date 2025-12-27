@@ -37,7 +37,9 @@ def ensure_dir(path: str):
 
 def download_with_ffmpeg(playlist_url: str, mp4_path: str) -> bool:
     """HLS → MP4 via ffmpeg, stream copy."""
-    # print(f"    Downloading via ffmpeg → {mp4_path}")
+    # Extract only the filename for display purposes
+    file_name = os.path.basename(mp4_path)
+    
     cmd = [
         "ffmpeg", "-y",
         "-loglevel", "warning",
@@ -47,7 +49,8 @@ def download_with_ffmpeg(playlist_url: str, mp4_path: str) -> bool:
     ]
     try:
         subprocess.run(cmd, check=True)
-        print(f"    ✔ Created: {mp4_path}")
+        # Using the extracted file_name here
+        print(f"    ✔ Created: {file_name}")
         return True
     except subprocess.CalledProcessError as e:
         print("    ffmpeg failed:", e)
