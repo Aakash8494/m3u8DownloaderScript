@@ -76,8 +76,8 @@ def main():
     
     if missing:
         print(f"⚠️  {len(missing)} courses are NOT yet downloaded:")
-        for i, course in enumerate(missing, 1):
-            print(f"{i}. {course}")
+        for course in missing:
+            print(f"{course}")
     else:
         print("✅ All courses from this page are already downloaded!")
 
