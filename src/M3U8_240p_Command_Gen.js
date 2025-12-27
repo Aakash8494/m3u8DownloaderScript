@@ -57,7 +57,7 @@
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        alert("File successfully saved to your Downloads folder!");
+        // alert("File successfully saved to your Downloads folder!");
     } catch (err) {
         // Fallback to clipboard if the file download is blocked by browser security
         copy(command);

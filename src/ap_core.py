@@ -37,7 +37,7 @@ def ensure_dir(path: str):
 
 def download_with_ffmpeg(playlist_url: str, mp4_path: str) -> bool:
     """HLS → MP4 via ffmpeg, stream copy."""
-    print(f"    Downloading via ffmpeg → {mp4_path}")
+    # print(f"    Downloading via ffmpeg → {mp4_path}")
     cmd = [
         "ffmpeg", "-y",
         "-loglevel", "warning",
