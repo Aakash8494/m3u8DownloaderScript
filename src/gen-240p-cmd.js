@@ -12,7 +12,7 @@
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (let i = videoElements.length / 2; i >= 0; i--) {
+    for (let i = videoElements.length / 2 - 1; i >= 0; i--) {
         const row = videoElements[i];
         const titleEl = row.querySelector('div > div > p');
 
