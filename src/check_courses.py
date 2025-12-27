@@ -8,16 +8,15 @@ LOCAL_DIRECTORY = "/Users/aakashjadhav/Documents/GitHub/m3u8DownloaderScript/src
 URL = "https://acharyaprashant.org/en/video-modules/campaign/cc-zx34ev"
 
 def get_local_folders(path):
-    """Returns a set of cleaned folder names from your computer."""
     if not os.path.exists(path):
         print(f"Error: The path {path} does not exist.")
         return set()
     
     folders = os.listdir(path)
     cleaned_names = []
+    print("--- Local Folders Found ---") # Header for clarity
     for f in folders:
-        # Chain replacements to handle both prefixes
-        name = f.replace("वीडियो श्रृंखला/", "").replace("Video Series/", "").strip()
+        name = f.replace("वीडियो श्रृंखला/", "").replace("Video Series/", "").replace("वीडियो श्रृंखला:", "").replace("Video Series:", "").strip()
         cleaned_names.append(name)
     return set(cleaned_names)
 
