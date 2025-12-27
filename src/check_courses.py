@@ -5,7 +5,9 @@ import pyperclip # Make sure to run: pip install pyperclip
 
 # --- CONFIGURATION ---
 LOCAL_DIRECTORY = "/Users/aakashjadhav/Documents/GitHub/m3u8DownloaderScript/src/output_videos"
-URL = "https://acharyaprashant.org/en/video-modules/campaign/cc-zx34ev"
+# URL = "https://acharyaprashant.org/en/video-modules/campaign/cc-zx34ev"
+# URL = "https://acharyaprashant.org/en/video-modules/series/course-series-ddc1fa"
+URL = "https://acharyaprashant.org/en/video-modules/series/cs-58e4a4"
 
 def get_local_folders(path):
     if not os.path.exists(path):
