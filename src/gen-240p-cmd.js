@@ -6,7 +6,6 @@
     const videoElements = document.querySelectorAll('[id^="video-0-"]');
     let command = `python downloader.py \\\n  --folder "${courseTitle.trim()}"`;
 
-    // Polling function to wait for the specific resource
     const waitForResource = (pattern, timeout = 10000) => {
         return new Promise((resolve) => {
             const start = Date.now();
@@ -21,9 +20,12 @@
                     clearInterval(interval);
                     resolve("URL_NOT_FOUND_TIMEOUT");
                 }
-            }, 200); // Check every 200ms
+            }, 200);
         });
     };
+
+    // Helper for manual delays
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     for (let i = videoElements.length / 2 - 1; i >= 0; i--) {
         const row = videoElements[i];
@@ -32,17 +34,27 @@
         if (titleEl) {
             const title = titleEl.innerText.trim().replace(/[’'!?]/g, "").replace(/\s+/g, '_');
 
-            console.log(`Processing: ${title}`);
-            titleEl.click();
+            console.log(`Preparing to click: ${title}`);
 
-            // MODIFIED: Instead of sleep(3000), we wait for the specific file
-            const videoUrl = await waitForResource("240p.m3u8", 8000);
+            // --- 1. WAIT BEFORE CLICK ---
+            // Gives the browser time to breathe before the next action
+            await sleep(1500);
+
+            titleEl.click();
+            console.log("Clicked. Waiting for resource...");
+
+            // 2. Wait for the specific resource to appear in network logs
+            const videoUrl = await waitForResource("240p.m3u8", 10000);
 
             command += ` \\\n  --url "${videoUrl}|${i + 1}.${title}"`;
 
+            // --- 3. WAIT AFTER RESOURCE FOUND ---
+            // Ensures the UI has finished any "loading" animations 
+            // before we clear logs and move to the next item
+            console.log("Resource found. Waiting for UI to settle...");
+            await sleep(2000);
+
             performance.clearResourceTimings();
-            // Small buffer to let the UI settle before the next click
-            await new Promise(r => setTimeout(r, 500));
         }
     }
 
@@ -56,6 +68,7 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        console.log("Extraction complete. File downloaded.");
     } catch (err) {
         console.error("Download failed", err);
     }
