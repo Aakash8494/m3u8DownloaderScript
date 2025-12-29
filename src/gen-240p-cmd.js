@@ -2,9 +2,17 @@
     performance.clearResourceTimings();
     console.log("Starting extraction...");
 
-    const courseTitle = document.querySelector('#course-stages .z-10 > div > div > div')?.innerText.replace(/वीडियो श्रृंखला[:/]|Video Series[:/]/g, "").trim() || "Downloaded_Course";
+    // --- 1. CLEANING THE MAIN COURSE FOLDER NAME ---
+    // Added [:/"] to the regex to catch colons, slashes, and double quotes
+    let courseTitle = document.querySelector('#course-stages .z-10 > div > div > div')?.innerText || "Downloaded_Course";
+
+    courseTitle = courseTitle
+        .replace(/वीडियो श्रृंखला|Video Series/g, "") // Remove the words
+        .replace(/[:/"\\|*?<>]/g, "")               // Remove all Windows-illegal characters
+        .trim();
+
     const videoElements = document.querySelectorAll('[id^="video-0-"]');
-    let command = `python downloader.py \\\n  --folder "${courseTitle.trim()}"`;
+    let command = `python downloader.py \\\n  --folder "${courseTitle}"`;
 
     const waitForResource = (pattern, timeout = 10000) => {
         return new Promise((resolve) => {
@@ -24,7 +32,6 @@
         });
     };
 
-    // Helper for manual delays
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     for (let i = videoElements.length / 2 - 1; i >= 0; i--) {
@@ -32,25 +39,21 @@
         const titleEl = row.querySelector('div > div > p');
 
         if (titleEl) {
-            const title = titleEl.innerText.trim().replace(/[’'!?]/g, "").replace(/\s+/g, '_');
+            // --- 2. CLEANING INDIVIDUAL VIDEO TITLES ---
+            // We strip quotes ("), colons (:), and slashes (/) specifically here
+            let title = titleEl.innerText.trim()
+                .replace(/[:/"\\|*?<>]/g, "") // Remove illegal Windows chars
+                .replace(/\s+/g, '_');        // Replace spaces with underscores for CLI stability
 
             console.log(`Preparing to click: ${title}`);
 
-            // --- 1. WAIT BEFORE CLICK ---
-            // Gives the browser time to breathe before the next action
             await sleep(1500);
-
             titleEl.click();
             console.log("Clicked. Waiting for resource...");
 
-            // 2. Wait for the specific resource to appear in network logs
             const videoUrl = await waitForResource("240p.m3u8", 10000);
-
             command += ` \\\n  --url "${videoUrl}|${i + 1}.${title}"`;
 
-            // --- 3. WAIT AFTER RESOURCE FOUND ---
-            // Ensures the UI has finished any "loading" animations 
-            // before we clear logs and move to the next item
             console.log("Resource found. Waiting for UI to settle...");
             await sleep(2000);
 
@@ -58,13 +61,15 @@
         }
     }
 
-    // --- LOG TO FILE LOGIC ---
+    // --- 3. EXPORT LOGIC ---
     try {
         const blob = new Blob([command], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${courseTitle.replace(/\s+/g, '_')}_command.txt`;
+        // Ensure filename is also clean
+        const safeFileName = courseTitle.replace(/\s+/g, '_');
+        a.download = `${safeFileName}_command.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
