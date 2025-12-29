@@ -35,10 +35,9 @@ def core_cleaner(name):
             clean_name = clean_name.replace(prefix, "", 1)
     
     # 2. Remove Windows Reserved Characters: \ / : * ? " < > |
-    # This covers your request for / : and "
     clean_name = re.sub(r'[\\/:*?"<>|]', '', clean_name)
 
-    # 3. Collapse multiple spaces into a single space
+    # 3. THE FIX: Collapse multiple spaces into a single space
     clean_name = re.sub(r'\s+', ' ', clean_name)
     
     # 4. Clean up trailing/leading whitespace and trailing dots
@@ -57,15 +56,23 @@ def process_renaming(root_path):
     logging.info(f"--- Starting Recursive Clean: {target_path} ---")
     
     rename_count = 0
+    ignore_count = 0
     error_count = 0
 
-    # topdown=False renames children before parents so paths stay valid
+    # topdown=False renames children before parents
     for root, dirs, files in os.walk(target_path, topdown=False):
         for item in (files + dirs):
             old_path = os.path.join(root, item)
             
-            # Don't rename the starting folder
+            # Skip the starting folder
             if old_path == target_path:
+                continue
+            
+            # --- THE FIX: IGNORE HIDDEN FILES / DOTFILES ---
+            # If the name starts with a dot (like .gitignore), skip it entirely
+            if item.startswith('.'):
+                logging.debug(f"IGNORING DOTFILE: {item}")
+                ignore_count += 1
                 continue
                 
             new_name = core_cleaner(item)
@@ -88,9 +95,9 @@ def process_renaming(root_path):
 
     logging.info(f"--- Task Finished ---")
     logging.info(f"Successfully Renamed: {rename_count}")
+    logging.info(f"Ignored (Dotfiles): {ignore_count}")
     logging.info(f"Errors Encountered: {error_count}")
 
 if __name__ == "__main__":
-    # Target folder can be passed as argument, otherwise uses current directory
     folder_to_clean = sys.argv[1] if len(sys.argv) > 1 else os.getcwd()
     process_renaming(folder_to_clean)
