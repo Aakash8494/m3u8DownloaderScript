@@ -1,9 +1,36 @@
 import os
 import pyperclip
 import json
+import re
 
 # --- CONFIGURATION ---
 LOCAL_DIRECTORY = "/Users/aakashjadhav/Documents/GitHub/m3u8DownloaderScript/src/output_videos"
+
+def sanitize_name(name):
+    """
+    Synchronized sanitization logic to match the download scripts.
+    """
+    # 1. Junk prefixes to strip
+    junk_prefixes = [
+        "वीडियो श्रृंखला/", "Video Series/", 
+        "वीडियो श्रृंखला:", "Video Series:", 
+        "वीडियो श्रृंखला/ ", "Video Series/ ",
+        "वीडियो श्रृंखला: ", "Video Series: ",
+        "वीडियो श्रृंखला", "Video Series"
+    ]
+    
+    clean_name = name
+    for prefix in junk_prefixes:
+        if clean_name.startswith(prefix):
+            clean_name = clean_name.replace(prefix, "", 1)
+    
+    # 2. Remove Windows Reserved Characters: \ / : * ? " < > |
+    clean_name = re.sub(r'[\\/:*?"<>|]', '', clean_name)
+    
+    # 3. Clean up trailing spaces or dots
+    clean_name = clean_name.strip().strip('.')
+    
+    return clean_name
 
 def get_js_snippet():
     print(f"--- DEBUG: Accessing Directory: {LOCAL_DIRECTORY} ---")
@@ -12,91 +39,83 @@ def get_js_snippet():
         print(f"[ERROR] Path does not exist: {LOCAL_DIRECTORY}")
         return
 
-    # 1. Get all items and filter for folders only
+    # 1. Get folders and sanitize them
     all_items = os.listdir(LOCAL_DIRECTORY)
     folders = [f for f in all_items if os.path.isdir(os.path.join(LOCAL_DIRECTORY, f))]
     
-    print(f"[INFO] Found {len(folders)} total folders.")
-
-    # 2. Clean names to match website text (Removing prefixes/slashes)
-    clean_names = []
-    junk_prefixes = ["वीडियो श्रृंखला/", "Video Series/", "वीडियो श्रृंखला:", "Video Series:", "वीडियो श्रृंखला", "Video Series"]
+    # We sanitize the local names so we are comparing "clean" against "clean"
+    clean_local_names = [sanitize_name(f) for f in folders]
     
-    for f in folders:
-        temp_name = f
-        for prefix in junk_prefixes:
-            if temp_name.startswith(prefix):
-                temp_name = temp_name.replace(prefix, "").strip()
-        
-        # Log one example to check if cleaning is working
-        clean_names.append(temp_name)
+    print(f"[INFO] Found {len(folders)} folders. (Sanitized for matching)")
 
-    print(f"[DEBUG] Sample cleaned name: '{clean_names[0] if clean_names else 'None'}'")
-
-    # 3. Create the JS code with a built-in logger
-    # We use json.dumps to ensure Hindi characters and quotes are handled correctly for JS
-    names_json = json.dumps(clean_names, ensure_ascii=False)
+    # 2. Create the JS code
+    names_json = json.dumps(clean_local_names, ensure_ascii=False)
 
     js_code = f"""
 (function() {{
     const localFolders = {names_json};
     console.log("--- DEBUG: JS Snippet Started ---");
     
-    // 1. Define multiple potential selectors based on your input
+    // Helper to clean website titles so they match the local sanitized folder names
+    const cleanWebTitle = (text) => {{
+        return text
+            .replace(/वीडियो श्रृंखला|Video Series/g, "") // Remove words
+            .replace(/[:/"\\\\|*?<>]/g, "")               // Remove illegal Windows chars
+            .replace(/\\s+/g, ' ')                        // Collapse multiple spaces
+            .trim()
+            .replace(/\\.+$/, "");                        // Remove trailing dots
+    }};
+
     const selectors = [
-        'span.font-hi',                                     // Your original
-        'span.font-normal.font-hi',                        // Combined fonts
-        'span[class*="text-[#2E2F31]"]',                   // Specific color hex
-        '.line-clamp-1.leading-normal',                    // Layout classes
-        'div.flex-col > span'                              // Structure-based
+        'span.font-hi', 
+        'span.font-normal.font-hi',
+        'span[class*="text-[#2E2F31]"]',
+        '.line-clamp-1.leading-normal',
+        'div.flex-col > span'
     ];
 
-    // 2. Gather all unique elements matching any of these selectors
     let allElements = [];
     selectors.forEach(selector => {{
         const found = document.querySelectorAll(selector);
         allElements = [...allElements, ...Array.from(found)];
     }});
 
-    // Remove duplicates (elements matching multiple selectors)
     const courseSpans = [...new Set(allElements)];
-    
     console.log("Total unique elements found:", courseSpans.length);
 
     let matchCount = 0;
     let highlightCount = 0;
 
     courseSpans.forEach((span) => {{
-        const webTitle = span.innerText.trim();
+        const originalTitle = span.innerText.trim();
         
         // Skip empty or generic UI labels
-        if (!webTitle || webTitle.length < 2 || webTitle === "Video Series" || webTitle === "FAQs") return;
+        if (!originalTitle || originalTitle.length < 2) return;
 
-        // DEBUG: Log every 10th title to console to verify what the script is "seeing"
-        // console.log("Checking web title:", webTitle);
+        // SANITIZE the title from the website before comparing
+        const sanitizedWebTitle = cleanWebTitle(originalTitle);
+        
+        if (!sanitizedWebTitle || sanitizedWebTitle === "FAQs") return;
 
-        // 3. The Comparison Logic
-        if (localFolders.includes(webTitle)) {{
+        // 3. The Comparison Logic (Sanitized vs Sanitized)
+        if (localFolders.includes(sanitizedWebTitle)) {{
             matchCount++;
-            // Dim items we ALREADY have
             const card = span.closest('a') || span.parentElement;
             card.style.opacity = "0.2"; 
             card.style.filter = "grayscale(100%)";
         }} else {{
-            // HIGHLIGHT items we are MISSING
             highlightCount++;
             const card = span.closest('a') || span.parentElement;
-            card.style.border = "4px solid #E11D48"; // Rose-600 color
+            card.style.border = "4px solid #E11D48";
             card.style.backgroundColor = "rgba(225, 29, 72, 0.05)";
             card.style.borderRadius = "8px";
+            card.style.position = "relative";
             
-            // Add a visual badge
             if (!card.querySelector('.missing-badge')) {{
                 const badge = document.createElement('div');
                 badge.className = 'missing-badge';
                 badge.innerText = "MISSING";
                 badge.style.cssText = "position:absolute; top:10px; right:10px; background:#E11D48; color:white; font-size:12px; padding:4px 8px; border-radius:4px; z-index:10; font-weight:bold;";
-                card.style.position = "relative";
                 card.appendChild(badge);
             }}
         }}
