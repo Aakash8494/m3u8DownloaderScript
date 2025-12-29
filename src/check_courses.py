@@ -6,130 +6,80 @@ import re
 # --- CONFIGURATION ---
 LOCAL_DIRECTORY = "/Users/aakashjadhav/Documents/GitHub/m3u8DownloaderScript/src/output_videos"
 
-def sanitize_name(name):
+def core_sanitizer(name):
     """
-    Synchronized sanitization logic to match the download scripts.
+    The master logic for cleaning strings to be Windows-compatible.
     """
-    # 1. Junk prefixes to strip
-    junk_prefixes = [
-        "वीडियो श्रृंखला/", "Video Series/", 
-        "वीडियो श्रृंखला:", "Video Series:", 
-        "वीडियो श्रृंखला/ ", "Video Series/ ",
-        "वीडियो श्रृंखला: ", "Video Series: ",
-        "वीडियो श्रृंखला", "Video Series"
-    ]
-    
-    clean_name = name
-    for prefix in junk_prefixes:
-        if clean_name.startswith(prefix):
-            clean_name = clean_name.replace(prefix, "", 1)
+    # 1. Remove specific junk prefixes
+    junk = ["वीडियो श्रृंखला/", "Video Series/", "वीडियो श्रृंखला:", "Video Series:", "वीडियो श्रृंखला", "Video Series"]
+    for prefix in junk:
+        if name.startswith(prefix):
+            name = name.replace(prefix, "", 1)
     
     # 2. Remove Windows Reserved Characters: \ / : * ? " < > |
-    clean_name = re.sub(r'[\\/:*?"<>|]', '', clean_name)
+    name = re.sub(r'[\\/:*?"<>|]', '', name)
     
-    # 3. Clean up trailing spaces or dots
-    clean_name = clean_name.strip().strip('.')
+    # 3. Collapse multiple spaces into a single space
+    name = re.sub(r'\s+', ' ', name)
     
-    return clean_name
+    # 4. Final trim of whitespace and trailing dots
+    return name.strip().strip('.')
 
-def get_js_snippet():
-    print(f"--- DEBUG: Accessing Directory: {LOCAL_DIRECTORY} ---")
+def get_local_folders(path):
+    """Retrieves and sanitizes folder names from a local path."""
+    if not os.path.exists(path):
+        print(f"[ERROR] Path not found: {path}")
+        return []
     
-    if not os.path.exists(LOCAL_DIRECTORY):
-        print(f"[ERROR] Path does not exist: {LOCAL_DIRECTORY}")
-        return
+    items = os.listdir(path)
+    # Only process directories, applying the core_sanitizer to each
+    return [core_sanitizer(f) for f in items if os.path.isdir(os.path.join(path, f))]
 
-    # 1. Get folders and sanitize them
-    all_items = os.listdir(LOCAL_DIRECTORY)
-    folders = [f for f in all_items if os.path.isdir(os.path.join(LOCAL_DIRECTORY, f))]
+def generate_js_snippet(folder_list):
+    """Creates the JS code used for browser comparison."""
+    names_json = json.dumps(folder_list, ensure_ascii=False)
     
-    # We sanitize the local names so we are comparing "clean" against "clean"
-    clean_local_names = [sanitize_name(f) for f in folders]
-    
-    print(f"[INFO] Found {len(folders)} folders. (Sanitized for matching)")
-
-    # 2. Create the JS code
-    names_json = json.dumps(clean_local_names, ensure_ascii=False)
-
-    js_code = f"""
+    return f"""
 (function() {{
     const localFolders = {names_json};
-    console.log("--- DEBUG: JS Snippet Started ---");
     
-    // Helper to clean website titles so they match the local sanitized folder names
-    const cleanWebTitle = (text) => {{
+    // Internal JS cleaning logic to match Python's core_sanitizer
+    const clean = (text) => {{
         return text
-            .replace(/वीडियो श्रृंखला|Video Series/g, "") // Remove words
-            .replace(/[:/"\\\\|*?<>]/g, "")               // Remove illegal Windows chars
-            .replace(/\\s+/g, ' ')                        // Collapse multiple spaces
+            .replace(/वीडियो श्रृंखला|Video Series/g, "")
+            .replace(/[:/"\\\\|*?<>]/g, "") 
+            .replace(/\\s+/g, ' ') 
             .trim()
-            .replace(/\\.+$/, "");                        // Remove trailing dots
+            .replace(/\\.+$/, "");
     }};
 
-    const selectors = [
-        'span.font-hi', 
-        'span.font-normal.font-hi',
-        'span[class*="text-[#2E2F31]"]',
-        '.line-clamp-1.leading-normal',
-        'div.flex-col > span'
-    ];
+    const selectors = ['span.font-hi', '.line-clamp-1.leading-normal', 'div.flex-col > span'];
+    let elements = [];
+    selectors.forEach(s => elements = [...elements, ...Array.from(document.querySelectorAll(s))]);
+    const uniqueSpans = [...new Set(elements)];
 
-    let allElements = [];
-    selectors.forEach(selector => {{
-        const found = document.querySelectorAll(selector);
-        allElements = [...allElements, ...Array.from(found)];
-    }});
+    uniqueSpans.forEach(span => {{
+        const title = span.innerText.trim();
+        if (title.length < 2 || title === "FAQs") return;
 
-    const courseSpans = [...new Set(allElements)];
-    console.log("Total unique elements found:", courseSpans.length);
+        const cleanTitle = clean(title);
+        const card = span.closest('a') || span.parentElement;
 
-    let matchCount = 0;
-    let highlightCount = 0;
-
-    courseSpans.forEach((span) => {{
-        const originalTitle = span.innerText.trim();
-        
-        // Skip empty or generic UI labels
-        if (!originalTitle || originalTitle.length < 2) return;
-
-        // SANITIZE the title from the website before comparing
-        const sanitizedWebTitle = cleanWebTitle(originalTitle);
-        
-        if (!sanitizedWebTitle || sanitizedWebTitle === "FAQs") return;
-
-        // 3. The Comparison Logic (Sanitized vs Sanitized)
-        if (localFolders.includes(sanitizedWebTitle)) {{
-            matchCount++;
-            const card = span.closest('a') || span.parentElement;
-            card.style.opacity = "0.2"; 
+        if (localFolders.includes(cleanTitle)) {{
+            card.style.opacity = "0.2";
             card.style.filter = "grayscale(100%)";
         }} else {{
-            highlightCount++;
-            const card = span.closest('a') || span.parentElement;
             card.style.border = "4px solid #E11D48";
-            card.style.backgroundColor = "rgba(225, 29, 72, 0.05)";
-            card.style.borderRadius = "8px";
             card.style.position = "relative";
-            
-            if (!card.querySelector('.missing-badge')) {{
-                const badge = document.createElement('div');
-                badge.className = 'missing-badge';
-                badge.innerText = "MISSING";
-                badge.style.cssText = "position:absolute; top:10px; right:10px; background:#E11D48; color:white; font-size:12px; padding:4px 8px; border-radius:4px; z-index:10; font-weight:bold;";
-                card.appendChild(badge);
-            }}
+            // Add Badge logic here if needed
         }}
     }});
-
-    console.log(`--- SCAN SUMMARY ---`);
-    console.log(`Matching Local Folders: ${{matchCount}}`);
-    console.log(`Missing on Local: ${{highlightCount}}`);
-    alert(`Found ${{highlightCount}} new items to download!`);
+    console.log("Scan Complete.");
 }})();
     """
-    
-    pyperclip.copy(js_code)
-    print("\n✅ STEP 2: Paste the copied code into the Browser Console now.")
 
 if __name__ == "__main__":
-    get_js_snippet()
+    folders = get_local_folders(LOCAL_DIRECTORY)
+    js_code = generate_js_snippet(folders)
+    pyperclip.copy(js_code)
+    print(f"✅ Processed {len(folders)} folders. JS snippet copied to clipboard.")
