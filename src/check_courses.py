@@ -10,8 +10,9 @@ CONFIG = {
     # 1. Regex to remove specific localized prefixes (Case insensitive)
     "PATTERN_PREFIX": r"वीडियो श्रृंखला|Video Series",
     
-    # 2. Regex to remove '!' and all other messy symbols
-    # Matches: ! @ # $ % ^ & ( ) [ ] { } ; ' , . ` ~ + = | / \ * ? < > : "
+    # 2. Regex to remove symbols.
+    # We define this carefully. Note the double backslash \\ inside the string for the literal backslash.
+    # Python Raw String: r"[!@#$%^&()[\]{};',.`~+=|/\\*?<>:\"]"
     "PATTERN_SYMBOLS": r"[!@#$%^&()[\]{};',.`~+=|/\\*?<>:\"]",
 }
 
@@ -19,14 +20,14 @@ class Sanitizer:
     @staticmethod
     def clean(text):
         """
-        Applies the exact same cleaning logic as the browser script.
+        Applies cleaning logic in Python.
         """
         if not text: return ""
         
         # 1. Remove Prefixes
         text = re.sub(CONFIG["PATTERN_PREFIX"], "", text, flags=re.IGNORECASE)
         
-        # 2. Remove Symbols (including !)
+        # 2. Remove Symbols
         text = re.sub(CONFIG["PATTERN_SYMBOLS"], "", text)
         
         # 3. Collapse Spaces
@@ -35,7 +36,6 @@ class Sanitizer:
         return text.strip()
 
 def get_local_folders(path):
-    """Scans the local directory and returns a list of sanitized folder names."""
     if not os.path.exists(path):
         print(f"❌ [ERROR] Path not found: {path}")
         return []
@@ -53,33 +53,41 @@ def get_local_folders(path):
     return clean_names
 
 def generate_js_snippet(folder_list):
-    """
-    Generates the JavaScript code. 
-    NOTE: We inject the exact same regex logic into the JS so the browser behaves identically.
-    """
     names_json = json.dumps(folder_list, ensure_ascii=False)
     
-    # We use an f-string with a raw string literal (r) for the JS code.
-    # We double the curly braces {{ }} for JS code, single { } for Python variables.
+    # --- KEY FIX ---
+    # We need to construct the JS RegExp object safely.
+    # 1. Get the raw pattern from config.
+    # 2. Convert it to a JSON string so backslashes are escaped correctly for JS strings.
+    # 3. Slice off the surrounding quotes from json.dumps to get the inner content.
+    
+    js_prefix_pattern = json.dumps(CONFIG['PATTERN_PREFIX'])[1:-1]
+    
+    # For the symbols, we need to ensure the forward slash / is escaped for JS literal syntax,
+    # OR we use the new RegExp("pattern", "flags") constructor which is safer.
+    # Let's use the RegExp constructor method to match Python exactly without fighting / delimiters.
+    
+    js_symbol_pattern = json.dumps(CONFIG['PATTERN_SYMBOLS'])[1:-1]
+
     return f"""
 (function() {{
-    // 1. Data from Python
     const localFolders = {names_json};
     
-    // 2. Cleaning Logic (Synced with Python)
+    // Define Regex using the RegExp constructor to avoid slash escaping hell
+    const prefixRegex = new RegExp("{js_prefix_pattern}", "gi");
+    const symbolRegex = new RegExp("{js_symbol_pattern}", "g");
+
     const clean = (text) => {{
         return text
-            .replace(/{CONFIG['PATTERN_PREFIX']}/gi, "")
-            .replace(/{CONFIG['PATTERN_SYMBOLS'].replace('\\', '\\\\')}/g, "") 
+            .replace(prefixRegex, "")
+            .replace(symbolRegex, "") 
             .replace(/\\s+/g, ' ') 
             .trim();
     }};
 
-    // 3. UI Logic
     const selectors = ['span.font-hi', '.line-clamp-1.leading-normal', 'div.flex-col > span'];
     let elements = [];
     
-    // Aggregate all potential title elements
     selectors.forEach(s => elements = [...elements, ...Array.from(document.querySelectorAll(s))]);
     const uniqueSpans = [...new Set(elements)];
 
@@ -93,13 +101,11 @@ def generate_js_snippet(folder_list):
         const card = span.closest('a') || span.parentElement;
 
         if (localFolders.includes(cleanTitle)) {{
-            // MATCH FOUND: Gray it out
             card.style.opacity = "0.2";
             card.style.filter = "grayscale(100%)";
-            card.style.pointerEvents = "none"; // Optional: prevent clicking
+            card.style.pointerEvents = "none"; 
         }} else {{
-            // MISSING: Highlight it
-            card.style.border = "4px solid #E11D48"; // Red border
+            card.style.border = "4px solid #E11D48"; 
             card.style.boxShadow = "0 0 10px rgba(225, 29, 72, 0.5)";
         }}
     }});
@@ -121,7 +127,6 @@ if __name__ == "__main__":
             print("-" * 40)
         except Exception as e:
             print(f"⚠️ Could not copy to clipboard: {e}")
-            print("Printing code instead:\n")
             print(js_code)
     else:
         print("⚠️ No folders found to process.")
