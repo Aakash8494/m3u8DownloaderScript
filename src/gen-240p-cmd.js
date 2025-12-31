@@ -90,7 +90,7 @@ const BrowserUtils = {
     // 2. Initialize Command List
     const commandLines = [
         `python downloader.py \\`,
-        `  --folder "${courseTitle}"`
+        `  --folder "${courseTitle}"\\`
     ];
 
     // 3. Identify Video Elements
