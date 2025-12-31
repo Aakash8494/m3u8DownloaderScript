@@ -23,7 +23,8 @@ const TextUtils = {
         if (!text) return "Unknown_Course";
         return text
             .replace(/वीडियो श्रृंखला|Video Series/g, "") // Remove specific localized text
-            .replace(/[:/"\\|*?<>]/g, "")                 // Remove illegal Windows chars
+            // Expanded regex: Removes Windows illegal chars + ! @ # $ % ^ & ( ) [ ] { } , . ; '
+            .replace(/[!@#$%^&()[\]{};',.`~+=|/\\*?<>:"]/g, "")
             .replace(/\s+/g, ' ')                         // Collapse multiple spaces
             .trim();
     },
