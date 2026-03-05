@@ -1,6 +1,7 @@
 import os
 import re
 import requests
+import shutil  # <-- NEW: Added for copying files
 from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
@@ -58,13 +59,14 @@ def main():
         channel_dir = os.path.join(base_dir, clean_channel)
         os.makedirs(channel_dir, exist_ok=True)
 
-        file_path = os.path.join(channel_dir, f"{clean_title}.txt")
+        # File paths for both the TXT and the DOCX
+        txt_file_path = os.path.join(channel_dir, f"{clean_title}.txt")
+        doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx") # <-- NEW
 
         print("Downloading transcript...")
 
         # --- NEW API LOGIC (v1.2+) ---
         api = YouTubeTranscriptApi()
-
         transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
 
         text_lines = []
@@ -94,10 +96,18 @@ def main():
         final_text = header + "\n".join(text_lines)
         # -----------------------------
 
-        with open(file_path, "w", encoding="utf-8") as f:
+        # 1. Save the transcript text file
+        with open(txt_file_path, "w", encoding="utf-8") as f:
             f.write(final_text)
+        print(f"✅ Saved transcript: {txt_file_path}")
 
-        print(f"✅ Saved transcript: {file_path}")
+        # 2. Copy the Word template
+        template_name = "Template.docx"
+        if os.path.exists(template_name):
+            shutil.copy(template_name, doc_file_path)
+            print(f"✅ Created Word doc:  {doc_file_path}")
+        else:
+            print(f"⚠️ Warning: '{template_name}' not found in the script folder. Word doc not created.")
 
     except NoTranscriptFound:
         print("❌ Error: No transcript found in Hindi or English.")
