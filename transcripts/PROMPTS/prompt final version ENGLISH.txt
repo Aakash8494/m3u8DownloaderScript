@@ -1,0 +1,12 @@
+I have attached a .txt file containing the Title, Channel, Link, and a raw transcript of a YouTube video. 
+
+Your task is to act as an expert editor and document formatter. I need you to read the attached file and reformat the transcript into clean, highly readable notes that I can print out. 
+
+You must strictly adhere to the following rules:
+1. **Verbatim Text ONLY:** Do NOT add, delete, summarize, or paraphrase any words from the transcript. The text must remain exactly as it is. 
+2. **Proper Paragraphing:** Break the giant wall of text into logical paragraphs based on the natural flow of ideas, pauses, or topic changes. 
+3. **Cosmetic Enhancements:** Use bolding for key concepts, powerful statements, or main ideas. Use italics for emphasis or internal thoughts. 
+4. **Header Formatting:** Keep the Title, Channel, and Link at the top, but format them cleanly.
+5. **Readability:** Treat this as if you are creating a beautiful, easy-to-read study guide or set of notes out of the spoken word.
+
+Please process the attached file now based on these rules.

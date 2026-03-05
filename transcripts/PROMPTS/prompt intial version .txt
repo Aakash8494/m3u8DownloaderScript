@@ -1,0 +1,125 @@
+help me write a prompt that take in txt file like this 
+
+
+
+Title:   WORK LIKE HELL or STAY UNLUCKY - Andrew Tate Motivation for 2026 Motivational Speech Jim Rohn
+
+Channel: Healthy Mindset
+
+Link:    https://www.youtube.com/watch?v=Z2gDRV2EzA8
+
+--------------------------------------------------
+
+
+
+I have always acted in a way where I
+
+knew God was watching. I thought [music]
+
+I can't do that. God will see it. And if
+
+God sees it, he will punish me for it.
+
+Maybe not now, but sooner or later he'll
+
+put somebody on the face of the planet
+
+with the intention, with the will and
+
+with the capability to punish me for
+
+doing such a thing. God is watching and
+
+the world is cyclical and what goes
+
+around comes around. You have to make
+
+God happy. Let's imagine God is a man.
+
+If I'm a man and I have 10 people who
+
+work for me or 10 children and they're
+
+all acting different ways, my favorite
+
+one's be the one that adheres to the
+
+rules and adheres to the tenants that
+
+I've set out. I'm God's favorite because
+
+I act true to God. I wouldn't snake
+
+anybody in the world for $10 billion.
+
+I'm not out here doing anything
+
+treacherous. I'm not a traitor. I don't
+
+do anything bad. I stick to my word. I
+
+do I work hard. I give my best at
+
+everything I do. I'm honest. That's all
+
+it takes to be God's favorite. I sit
+
+here and look at every decision I make
+
+and I genuinely sit and think, I am
+
+being analyzed and I'm being watched by
+
+another power. Is this going to benefit
+
+me in the long run? God looks at me and
+
+goes, I made men to be X. And Andrew is
+
+doing what he's supposed to do. Andrew
+
+is trying to become the strongest,
+
+richest, most important, most competent
+
+version of himself. He's trying to
+
+educate and inspire other men to do the
+
+exact same thing. I'm lucky. God loves
+
+me. You're God's favorite cuz you decide
+
+to be. You have to show him that you're
+
+out here doing the things you're
+
+supposed to do. Did God create man for
+
+you to s be lazy? Is that why he made
+
+you? If you think it is, then you can
+
+
+
+which is a transcript of a youtube video and then outputs text that is 
+
+
+
+divided into proper paras
+
+each text as is dont add delete anything 
+
+only make cosmetic changes
+
+
+
+bolding italics etc .... 
+
+
+
+and pragraphing 
+
+
+
+basically creates notes of the video which i can then print out 

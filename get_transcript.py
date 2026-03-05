@@ -21,7 +21,7 @@ def extract_video_id(value: str) -> str:
     return value
 
 def clean_filename(name: str) -> str:
-    # Remove invalid characters and STRIP whitespace (Fixes the folder error)
+    # Remove invalid characters and STRIP whitespace
     return re.sub(r'[\\/*?:"<>|]', "", name).strip()
 
 def get_title_and_channel(video_page_url: str):
@@ -81,11 +81,17 @@ def main():
                 elif isinstance(entry, dict):
                     text_lines.append(entry.get('text'))
         
-        # Create the standard video link
+        # --- NEW METADATA HEADER ---
         video_link = f"https://www.youtube.com/watch?v={video_id}"
+        header = (
+            f"Title:   {title}\n"
+            f"Channel: {channel}\n"
+            f"Link:    {video_link}\n"
+            f"{'-' * 50}\n\n"
+        )
         
-        # Prepend the link to the top of the transcript text
-        final_text = f"Link: {video_link}\n\n" + "\n".join(text_lines)
+        # Combine header with the joined transcript lines
+        final_text = header + "\n".join(text_lines)
         # -----------------------------
 
         with open(file_path, "w", encoding="utf-8") as f:
