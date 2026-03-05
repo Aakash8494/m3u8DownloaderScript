@@ -63,15 +63,10 @@ def main():
         print("Downloading transcript...")
 
         # --- NEW API LOGIC (v1.2+) ---
-        # 1. Create the instance
         api = YouTubeTranscriptApi()
 
-        # 2. Use .fetch() with Hindi ('hi') and English ('en')
-        # This returns a Transcript object, not a list
         transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
 
-        # 3. Convert to text
-        # The new object has a .to_raw_data() method or is iterable
         text_lines = []
         
         # Check if we can convert to raw data (list of dicts)
@@ -79,18 +74,22 @@ def main():
             raw_data = transcript_obj.to_raw_data()
             text_lines = [entry['text'] for entry in raw_data]
         else:
-            # Fallback: iterate directly (works if object is just iterable)
+            # Fallback: iterate directly
             for entry in transcript_obj:
                 if hasattr(entry, 'text'):
                     text_lines.append(entry.text)
                 elif isinstance(entry, dict):
                     text_lines.append(entry.get('text'))
         
-        text = "\n".join(text_lines)
+        # Create the standard video link
+        video_link = f"https://www.youtube.com/watch?v={video_id}"
+        
+        # Prepend the link to the top of the transcript text
+        final_text = f"Link: {video_link}\n\n" + "\n".join(text_lines)
         # -----------------------------
 
         with open(file_path, "w", encoding="utf-8") as f:
-            f.write(text)
+            f.write(final_text)
 
         print(f"✅ Saved transcript: {file_path}")
 
