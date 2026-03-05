@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Auto-run Script",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "& C:\\m3u8\\venv\\Scripts\\Activate.ps1; python .\\get_transcript.py"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        }
+    ]
+}
