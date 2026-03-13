@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\shell\ExtractCourseAudio]
+@="Extract Audio Instantly"
+"Icon"="imageres.dll,-18"
+
+[HKEY_CLASSES_ROOT\Directory\shell\ExtractCourseAudio\command]
+@="python \"C:\\m3u8\\src\\extract_audio\\extract_audio.py\" \"%1\""

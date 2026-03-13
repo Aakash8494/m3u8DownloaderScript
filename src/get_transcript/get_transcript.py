@@ -1,14 +1,25 @@
 import os
 import re
 import requests
-import shutil  # <-- NEW: Added for copying files
+import shutil
+import tkinter as tk  # <-- Built-in Windows library to read the clipboard
 from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+
+def get_clipboard_text():
+    """Silently grabs whatever text is currently copied to your clipboard."""
+    root = tk.Tk()
+    root.withdraw() # Hides the little empty window
+    try:
+        text = root.clipboard_get()
+    except tk.TclError:
+        text = ""
+    root.destroy()
+    return text
 
 def extract_video_id(value: str) -> str:
     value = value.strip()
     parsed = urlparse(value)
-
     if parsed.scheme in ("http", "https"):
         if parsed.netloc in ("youtu.be", "www.youtu.be"):
             return parsed.path.lstrip("/")
@@ -22,7 +33,6 @@ def extract_video_id(value: str) -> str:
     return value
 
 def clean_filename(name: str) -> str:
-    # Remove invalid characters and STRIP whitespace
     return re.sub(r'[\\/*?:"<>|]', "", name).strip()
 
 def get_title_and_channel(video_page_url: str):
@@ -37,16 +47,21 @@ def get_title_and_channel(video_page_url: str):
         return "Unknown_Video", "Unknown_Channel"
 
 def main():
-    video_input = input("Enter YouTube URL or ID: ").strip()
+    # 1. Instantly grab the copied URL
+    video_input = get_clipboard_text().strip()
+
+    # Quick check to make sure you actually copied a YouTube link
+    if "youtube.com" not in video_input and "youtu.be" not in video_input:
+        print("❌ Error: No YouTube URL found in your clipboard.")
+        print(f"What we found instead: '{video_input[:50]}...'")
+        input("\nPlease copy a YouTube link and try again. Press Enter to exit...")
+        return
+
+    print(f"📋 Read from clipboard: {video_input}\n")
 
     try:
         video_id = extract_video_id(video_input)
-        print(f"Using video ID: {video_id}")
-
-        if video_input.startswith("http"):
-            page_url = video_input
-        else:
-            page_url = f"https://www.youtube.com/watch?v={video_id}"
+        page_url = f"https://www.youtube.com/watch?v={video_id}"
 
         print("Fetching video metadata...")
         title, channel = get_title_and_channel(page_url)
@@ -59,31 +74,24 @@ def main():
         channel_dir = os.path.join(base_dir, clean_channel)
         os.makedirs(channel_dir, exist_ok=True)
 
-        # File paths for both the TXT and the DOCX
         txt_file_path = os.path.join(channel_dir, f"{clean_title}.txt")
-        doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx") # <-- NEW
+        doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx")
 
         print("Downloading transcript...")
-
-        # --- NEW API LOGIC (v1.2+) ---
         api = YouTubeTranscriptApi()
         transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
 
         text_lines = []
-        
-        # Check if we can convert to raw data (list of dicts)
         if hasattr(transcript_obj, 'to_raw_data'):
             raw_data = transcript_obj.to_raw_data()
             text_lines = [entry['text'] for entry in raw_data]
         else:
-            # Fallback: iterate directly
             for entry in transcript_obj:
                 if hasattr(entry, 'text'):
                     text_lines.append(entry.text)
                 elif isinstance(entry, dict):
                     text_lines.append(entry.get('text'))
-        
-        # --- NEW METADATA HEADER ---
+
         video_link = f"https://www.youtube.com/watch?v={video_id}"
         header = (
             f"Title:   {title}\n"
@@ -92,22 +100,18 @@ def main():
             f"{'-' * 50}\n\n"
         )
         
-        # Combine header with the joined transcript lines
         final_text = header + "\n".join(text_lines)
-        # -----------------------------
 
-        # 1. Save the transcript text file
         with open(txt_file_path, "w", encoding="utf-8") as f:
             f.write(final_text)
         print(f"✅ Saved transcript: {txt_file_path}")
 
-        # 2. Copy the Word template
         template_name = "Template.docx"
         if os.path.exists(template_name):
             shutil.copy(template_name, doc_file_path)
             print(f"✅ Created Word doc:  {doc_file_path}")
         else:
-            print(f"⚠️ Warning: '{template_name}' not found in the script folder. Word doc not created.")
+            print(f"⚠️ Warning: '{template_name}' not found. Word doc not created.")
 
     except NoTranscriptFound:
         print("❌ Error: No transcript found in Hindi or English.")
@@ -116,5 +120,26 @@ def main():
     except Exception as e:
         print(f"❌ Error: {e}")
 
+    # Keep window open so you can see it succeeded
+    input("\nPress Enter to close this window...")
+
 if __name__ == "__main__":
-    main()
+    import os
+    import sys
+    import traceback
+
+    # 1. Force Python to use the exact folder where this script is located
+    # This guarantees it finds Template.docx and saves transcripts in the right place.
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    
+    # 2. Wrap the whole thing in a try/except so the window NEVER force-closes on a crash
+    try:
+        main()
+    except Exception as e:
+        print("\n" + "="*50)
+        print("❌ A FATAL ERROR OCCURRED:")
+        print("="*50)
+        traceback.print_exc()
+        print("="*50)
+        input("\nPress Enter to close this window...")
