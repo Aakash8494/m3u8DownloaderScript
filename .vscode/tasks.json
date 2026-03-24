@@ -1,6 +1,6 @@
 {
     "version": "2.0.0",
-    "tasks": [
+    "_tasks": [
         {
             "label": "Auto-run Script",
             "type": "shell",
