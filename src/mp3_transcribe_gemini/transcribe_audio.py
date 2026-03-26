@@ -1,5 +1,6 @@
 import os
 import time
+import argparse
 import google.generativeai as genai
 from docx import Document
 from dotenv import load_dotenv
@@ -16,7 +17,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 
 # Initialize the model 
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 2. Define the Prompt 
 PROMPT = """
@@ -37,17 +38,25 @@ Return only the final formatted transcription. Do not add any extra introductory
 """
 
 def process_mp3_files(folder_path, template_path):
+    # Ensure paths are absolute or correctly resolved
+    folder_path = os.path.abspath(folder_path)
+    template_path = os.path.abspath(template_path)
+
     if not os.path.exists(template_path):
         print(f"Error: Template file not found at {template_path}")
+        return
+
+    if not os.path.isdir(folder_path):
+        print(f"Error: The directory {folder_path} does not exist.")
         return
 
     mp3_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.mp3')]
     
     if not mp3_files:
-        print("No MP3 files found in the specified directory.")
+        print(f"No MP3 files found in {folder_path}.")
         return
 
-    print(f"Found {len(mp3_files)} MP3 file(s). Starting processing...\n")
+    print(f"Found {len(mp3_files)} MP3 file(s) in {folder_path}. Starting processing...\n")
 
     for filename in mp3_files:
         file_path = os.path.join(folder_path, filename)
@@ -76,7 +85,7 @@ def process_mp3_files(folder_path, template_path):
             output_path = os.path.join(folder_path, output_filename)
             doc.save(output_path)
             
-            print(f"Success! Saved to {output_filename}\n")
+            print(f"Success! Saved to {output_path}\n")
 
             audio_file.delete()
 
@@ -84,7 +93,15 @@ def process_mp3_files(folder_path, template_path):
             print(f"\nAn error occurred while processing {filename}: {e}\n")
 
 if __name__ == "__main__":
-    TARGET_FOLDER = "." 
-    TEMPLATE_FILE = "template.docx" 
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description="Transcribe MP3 files in a folder and save them to Word documents.")
     
-    process_mp3_files(TARGET_FOLDER, TEMPLATE_FILE)
+    # Required argument: The folder containing the MP3s
+    parser.add_argument("folder_path", type=str, help="Path to the folder containing your MP3 files.")
+    
+    # Optional argument: The template file (defaults to 'template.docx' in the current directory)
+    parser.add_argument("--template", type=str, default="template.docx", help="Path to your Word template file (default: template.docx).")
+    
+    args = parser.parse_args()
+    
+    process_mp3_files(args.folder_path, args.template)
