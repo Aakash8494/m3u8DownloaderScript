@@ -1,2 +1,3 @@
 output_videos/.DS_Store
 .DS_Store
+src/mp3_transcribe_gemini/.env

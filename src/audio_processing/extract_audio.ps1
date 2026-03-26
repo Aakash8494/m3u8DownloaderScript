@@ -8,3 +8,10 @@ Get-ChildItem -Filter *.mp4 | ForEach-Object { ffmpeg -i $_.FullName -q:a 0 -map
 # Note for Windows 11 users: You can just Right-click the empty space and select Open in Terminal.
 
 # Run the command: Paste the following snippet into the terminal and press Enter.
+
+
+$shell = New-Object -ComObject Shell.Application
+$folder = $shell.Namespace((Get-Location).Path)
+$folder.Items() | Select-Object Name, @{Name="Length";Expression={$folder.GetDetailsOf($_, 27)}}
+
+## ps to list name and length
