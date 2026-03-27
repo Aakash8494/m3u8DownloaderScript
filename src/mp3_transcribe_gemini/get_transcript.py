@@ -32,8 +32,12 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 PROMPT = """
 You are an expert transcriber, strict text formatter, and translator. I am providing you with a raw, unpunctuated text transcript from a video.
 
-If the spoken text is in Hindi, transliterate it directly into Hinglish (Hindi words written using the English alphabet). If it is in English, leave it exactly in English.
-You must process the exact spoken words. Do NOT add, delete, summarize, or skip a single spoken word from the provided text.
+CRITICAL LANGUAGE AND SCRIPT RULE:
+- If the provided text is in Hindi (written in Devanagari script, e.g., नमस्ते), you MUST transliterate it completely into Hinglish (Hindi words written using the English alphabet, e.g., namaste). 
+- The final output MUST NOT contain ANY Devanagari/Hindi script characters. It must be written 100% using the English alphabet.
+- If the text is in English, leave it exactly in English.
+
+You must process the exact spoken words verbatim. Do NOT add, delete, summarize, or skip a single spoken word from the provided text. (Note: Transliterating the script from Hindi to English letters does not violate this rule; you must preserve the exact spoken words, just change the alphabet).
 
 Since the raw text lacks visible punctuation, you must deduce and add periods (full stops) where sentences naturally end. Always capitalize the first letter of the word immediately following a period.
 
