@@ -1,0 +1,210 @@
+import os
+import re
+import time
+import requests
+import traceback
+import tkinter as tk
+from urllib.parse import urlparse, parse_qs
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+
+import google.generativeai as genai
+from docx import Document
+from dotenv import load_dotenv
+
+# 1. Force Python to use the exact folder where this script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+# Load environment variables from the shared .env file
+load_dotenv()
+
+# Safely retrieve API Key
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("❌ Error: GEMINI_API_KEY not found. Please ensure your .env file is in this folder.")
+    input("\nPress Enter to exit...")
+    exit(1)
+
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('gemini-2.5-flash')
+
+# Define the Prompt
+PROMPT = """
+You are an expert transcriber, strict text formatter, and translator. I am providing you with a raw, unpunctuated text transcript from a video.
+
+If the spoken text is in Hindi, transliterate it directly into Hinglish (Hindi words written using the English alphabet). If it is in English, leave it exactly in English.
+You must process the exact spoken words. Do NOT add, delete, summarize, or skip a single spoken word from the provided text.
+
+Since the raw text lacks visible punctuation, you must deduce and add periods (full stops) where sentences naturally end. Always capitalize the first letter of the word immediately following a period.
+
+Break the continuous text down into readable paragraphs of roughly 150 to 200 words. Additionally, if the topic clearly transitions, start a new paragraph.
+
+Create a short, appropriate title/heading for every single paragraph based on what that section is about. Place the title right above its matching paragraph.
+
+Find the most important keywords, phrases, or main ideas inside each formatted paragraph and make them bold to make it easier to read.
+
+Return only the final formatted text. Do not add any extra introductory or concluding sentences before or after the text.
+"""
+
+def get_clipboard_text():
+    """Silently grabs whatever text is currently copied to the clipboard."""
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        text = root.clipboard_get()
+    except tk.TclError:
+        text = ""
+    root.destroy()
+    return text
+
+def extract_video_id(value: str) -> str:
+    value = value.strip()
+    parsed = urlparse(value)
+    if parsed.scheme in ("http", "https"):
+        if parsed.netloc in ("youtu.be", "www.youtu.be"):
+            return parsed.path.lstrip("/")
+        qs = parse_qs(parsed.query)
+        if "v" in qs:
+            return qs["v"][0]
+        m = re.search(r"/(shorts|embed)/([^/?&#]+)", parsed.path)
+        if m:
+            return m.group(2)
+        return parsed.path.lstrip("/")
+    return value
+
+def clean_filename(name: str) -> str:
+    return re.sub(r'[\\/*?:"<>|]', "", name).strip()
+
+def get_title_and_channel(video_page_url: str):
+    oembed_url = "https://www.youtube.com/oembed"
+    params = {"url": video_page_url, "format": "json"}
+    try:
+        resp = requests.get(oembed_url, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("title", "Untitled"), data.get("author_name", "UnknownChannel")
+    except:
+        return "Unknown_Video", "Unknown_Channel"
+
+def safe_add_heading(doc, text, level):
+    """Safely adds a heading, falling back to bold text if the style is missing."""
+    try:
+        doc.add_heading(text, level=level)
+    except KeyError:
+        p = doc.add_paragraph()
+        run = p.add_run(text)
+        run.bold = True
+
+def main():
+    video_input = get_clipboard_text().strip()
+
+    if "youtube.com" not in video_input and "youtu.be" not in video_input:
+        print("❌ Error: No YouTube URL found in your clipboard.")
+        print(f"What we found instead: '{video_input[:50]}...'")
+        input("\nPlease copy a YouTube link and try again. Press Enter to exit...")
+        return
+
+    print(f"📋 Read from clipboard: {video_input}\n")
+
+    try:
+        video_id = extract_video_id(video_input)
+        page_url = f"https://www.youtube.com/watch?v={video_id}"
+
+        print("Fetching video metadata...")
+        title, channel = get_title_and_channel(page_url)
+        print(f"Found: {title} ({channel})")
+
+        clean_channel = clean_filename(channel)
+        clean_title = clean_filename(title)
+
+        # Create a dedicated folder for YouTube files to keep them separate from MP3s
+        base_dir = "YouTube_Transcripts"
+        channel_dir = os.path.join(base_dir, clean_channel)
+        os.makedirs(channel_dir, exist_ok=True)
+
+        txt_file_path = os.path.join(channel_dir, f"{clean_title}.txt")
+        doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx")
+
+        # 1. Download Raw Transcript
+        print("Downloading raw transcript...")
+        api = YouTubeTranscriptApi()
+        
+        try:
+            transcript_list = api.list_transcripts(video_id)
+            try:
+                transcript_obj = transcript_list.find_transcript(['hi', 'en'])
+            except:
+                transcript_obj = transcript_list.find_generated_transcript(['hi', 'en'])
+                
+            raw_data = transcript_obj.fetch()
+            text_lines = [entry['text'] for entry in raw_data]
+            
+        except Exception as transcript_err:
+             print(f"Transcript fetch logic failed, trying fallback: {transcript_err}")
+             transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
+             text_lines = [entry['text'] if isinstance(entry, dict) else entry.text for entry in transcript_obj]
+
+        # Save raw backup to txt file
+        video_link = f"https://www.youtube.com/watch?v={video_id}"
+        header = f"Title:   {title}\nChannel: {channel}\nLink:    {video_link}\n{'-' * 50}\n\n"
+        raw_full_text = " ".join(text_lines)
+        
+        with open(txt_file_path, "w", encoding="utf-8") as f:
+            f.write(header + raw_full_text)
+        print(f"✅ Saved raw backup: {txt_file_path}")
+
+        # 2. Pass to Gemini for Formatting
+        print("🤖 Sending raw text to Gemini for formatting and translation...")
+        response = model.generate_content([PROMPT, raw_full_text])
+        formatted_text = response.text
+
+        # 3. Write native Word Document from scratch
+        print("📝 Creating beautifully formatted Word Document...")
+        doc = Document()
+        safe_add_heading(doc, f"Source: {title}", level=1)
+        
+        lines = formatted_text.split('\n')
+        
+        for line in lines:
+            text = line.strip()
+            if not text:
+                continue 
+                
+            if text.startswith("### "):
+                safe_add_heading(doc, text[4:].strip(), level=3)
+            elif text.startswith("## "):
+                safe_add_heading(doc, text[3:].strip(), level=2)
+            elif text.startswith("# "):
+                safe_add_heading(doc, text[2:].strip(), level=1)
+            else:
+                para = doc.add_paragraph()
+                parts = text.split("**")
+                
+                for idx, part in enumerate(parts):
+                    if part: 
+                        run = para.add_run(part)
+                        if idx % 2 != 0:
+                            run.bold = True
+
+        doc.save(doc_file_path)
+        print(f"✅ Saved formatted Word doc: {doc_file_path}")
+
+    except NoTranscriptFound:
+        print("❌ Error: No transcript found in Hindi or English.")
+    except TranscriptsDisabled:
+        print("❌ Error: Transcripts are disabled for this video.")
+    except Exception as e:
+        print(f"❌ Error: {e}")
+
+    input("\nPress Enter to close this window...")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print("\n" + "="*50)
+        print("❌ A FATAL ERROR OCCURRED:")
+        print("="*50)
+        traceback.print_exc()
+        print("="*50)
+        input("\nPress Enter to close this window...")
