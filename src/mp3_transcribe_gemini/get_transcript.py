@@ -28,7 +28,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-# Define the Prompt
+# Define the Prompt for the main transcript
 PROMPT = """
 You are an expert transcriber, strict text formatter, and translator. I am providing you with a raw, unpunctuated text transcript from a video.
 
@@ -48,6 +48,13 @@ Create a short, appropriate title/heading for every single paragraph based on wh
 Find the most important keywords, phrases, or main ideas inside each formatted paragraph and make them bold to make it easier to read.
 
 Return only the final formatted text. Do not add any extra introductory or concluding sentences before or after the text.
+"""
+
+# Define a mini-prompt just for cleaning up the Title
+TITLE_PROMPT = """
+If the following text contains any Hindi/Devanagari script, transliterate it completely into Hinglish (Hindi words written using the English alphabet). 
+If it is already entirely in English, return it exactly as is. 
+Only return the transformed title text. Do not add quotes, introductions, or extra punctuation.
 """
 
 def get_clipboard_text():
@@ -115,13 +122,24 @@ def main():
         page_url = f"https://www.youtube.com/watch?v={video_id}"
 
         print("Fetching video metadata...")
-        title, channel = get_title_and_channel(page_url)
-        print(f"Found: {title} ({channel})")
+        raw_title, channel = get_title_and_channel(page_url)
+        print(f"Raw Title Found: {raw_title} ({channel})")
+
+        # --- NEW STEP: Transliterate the title if necessary ---
+        print("Checking title for Hindi script...")
+        try:
+            title_response = model.generate_content([TITLE_PROMPT, raw_title])
+            title = title_response.text.strip()
+            if title != raw_title:
+                print(f"Transliterated Title: {title}")
+        except Exception as e:
+            print(f"Title translation failed (using raw): {e}")
+            title = raw_title
 
         clean_channel = clean_filename(channel)
         clean_title = clean_filename(title)
 
-        # Create a dedicated folder for YouTube files to keep them separate from MP3s
+        # Create a dedicated folder for YouTube files
         base_dir = "YouTube_Transcripts"
         channel_dir = os.path.join(base_dir, clean_channel)
         os.makedirs(channel_dir, exist_ok=True)
@@ -165,6 +183,7 @@ def main():
         # 3. Write native Word Document from scratch
         print("📝 Creating beautifully formatted Word Document...")
         doc = Document()
+        # Uses the newly transliterated title as the main heading inside the doc
         safe_add_heading(doc, f"Source: {title}", level=1)
         
         lines = formatted_text.split('\n')
