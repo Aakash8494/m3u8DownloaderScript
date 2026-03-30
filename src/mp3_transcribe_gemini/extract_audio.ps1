@@ -1,4 +1,13 @@
+# SINGLE FOLDER
 Get-ChildItem -Filter *.mp4 | ForEach-Object { ffmpeg -i $_.FullName -q:a 0 -map a "$($_.BaseName).mp3" }
+
+# RECURSIVE FOLDER + CHECK IF mp3 already present 
+Get-ChildItem -Filter *.mp4 -Recurse | ForEach-Object {
+    $output = "$($_.DirectoryName)\$($_.BaseName).mp3"
+    if (-not (Test-Path $output)) {
+        ffmpeg -i $_.FullName -q:a 0 -map a $output
+    }
+}
 
 # Usage Instructions
 # Navigate to your files: Open the folder containing your .mp4 files in Windows File Explorer.

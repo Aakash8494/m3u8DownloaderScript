@@ -3,13 +3,11 @@ import time
 import argparse
 import google.generativeai as genai
 
-# --- NEW DOCX IMPORTS ---
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-# ------------------------
 
 from dotenv import load_dotenv
 
@@ -46,7 +44,7 @@ Return only the final formatted transcription. Do not add any extra introductory
 """
 
 # =========================================================
-# --- NEW FORMATTING HELPER FUNCTIONS ---
+# --- FORMATTING HELPER FUNCTIONS ---
 # =========================================================
 def add_page_number(run):
     """Injects Word XML field codes to auto-generate page numbers."""
@@ -84,13 +82,11 @@ def apply_custom_formatting(doc):
         run = footer_para.add_run()
         add_page_number(run)
 
-    # 3. Shrink overall fonts 3 times
-    # Default font is 11pt, 3 shrinks = 8pt
+    # 3. Shrink overall fonts 3 times (Default is 11pt, 3 shrinks = 8pt)
     style_normal = doc.styles['Normal']
     style_normal.font.size = Pt(8)
     
-    # Also proportionally shrink the Headings so they don't look giant 
-    # compared to the 8pt body text.
+    # Proportionally shrink Headings
     try:
         doc.styles['Heading 1'].font.size = Pt(14)
         doc.styles['Heading 2'].font.size = Pt(12)
@@ -106,24 +102,40 @@ def process_and_merge_mp3s(folder_path, output_filename):
         print(f"Error: The directory {folder_path} does not exist.")
         return
 
-    mp3_files = sorted([f for f in os.listdir(folder_path) if f.lower().endswith('.mp3')])
+    # --- NEW: RECURSIVE FILE SEARCH ---
+    mp3_files_paths = []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.lower().endswith('.mp3'):
+                # Store the full absolute path to the file
+                mp3_files_paths.append(os.path.join(root, file))
     
-    if not mp3_files:
-        print(f"No MP3 files found in {folder_path}.")
+    # Sort files alphabetically by their full paths
+    mp3_files_paths.sort()
+    
+    if not mp3_files_paths:
+        print(f"No MP3 files found in {folder_path} or its sub-directories.")
         return
 
-    print(f"Found {len(mp3_files)} MP3 file(s) in {folder_path}. Starting processing...\n")
+    print(f"Found {len(mp3_files_paths)} MP3 file(s) recursively in {folder_path}. Starting processing...\n")
 
     # Create a completely fresh master document from scratch
     master_doc = Document()
-    apply_custom_formatting(master_doc) # <-- Apply formatting to master
+    apply_custom_formatting(master_doc)
 
-    for i, filename in enumerate(mp3_files):
-        file_path = os.path.join(folder_path, filename)
-        print(f"Uploading and processing: {filename}...")
+    for i, file_path in enumerate(mp3_files_paths):
+        # Extract filename and the specific sub-folder it lives in
+        filename = os.path.basename(file_path)
+        parent_dir = os.path.dirname(file_path)
+        
+        # Calculate relative path just to make the console output cleaner
+        rel_path = os.path.relpath(parent_dir, folder_path)
+        display_dir = "main folder" if rel_path == "." else rel_path
+        
+        print(f"Uploading and processing: {filename} (from {display_dir})...")
 
         try:
-            # 1. Upload the audio file to the Gemini API
+            # 1. Upload the audio file to the Gemini API using the full file_path
             audio_file = genai.upload_file(path=file_path)
             
             while audio_file.state.name == "PROCESSING":
@@ -142,7 +154,7 @@ def process_and_merge_mp3s(folder_path, output_filename):
             
             # Create a completely fresh document for this specific MP3
             individual_doc = Document()
-            apply_custom_formatting(individual_doc) # <-- Apply formatting to individual doc
+            apply_custom_formatting(individual_doc)
             
             # Add a clear separator for the new audio file in the master document
             master_doc.add_heading(f"Source: {filename}", level=1)
@@ -153,7 +165,7 @@ def process_and_merge_mp3s(folder_path, output_filename):
             for line in lines:
                 text = line.strip()
                 if not text:
-                    continue # Skip empty lines
+                    continue 
                     
                 # Handle Headings for both docs
                 if text.startswith("### "):
@@ -180,19 +192,18 @@ def process_and_merge_mp3s(folder_path, output_filename):
                         if part: 
                             ind_run = ind_para.add_run(part)
                             mast_run = mast_para.add_run(part)
-                            # Odd indexes were wrapped in **
                             if idx % 2 != 0:
                                 ind_run.bold = True
                                 mast_run.bold = True
 
-            # Save the individual file
+            # Save the individual file in its respective sub-folder
             individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
-            individual_path = os.path.join(folder_path, individual_filename)
+            individual_path = os.path.join(parent_dir, individual_filename)
             individual_doc.save(individual_path)
-            print(f"  Saved individual doc: {individual_filename}")
+            print(f"  Saved individual doc: {individual_path}")
 
             # Add an empty line spacing between different audio files in the master doc
-            if i < len(mp3_files) - 1:
+            if i < len(mp3_files_paths) - 1:
                 master_doc.add_paragraph()
 
             # Clean up the file from Google's servers
@@ -202,14 +213,14 @@ def process_and_merge_mp3s(folder_path, output_filename):
         except Exception as e:
             print(f"\nAn error occurred while processing {filename}: {e}\n")
 
-    # 4. Save the final compiled master document
+    # 4. Save the final compiled master document in the MAIN folder
     output_path = os.path.join(folder_path, output_filename)
     master_doc.save(output_path)
     print(f"Success! Master document compiled and saved to: {output_path}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Transcribe MP3 files into individual formatted Word docs AND a compiled master doc.")
-    parser.add_argument("folder_path", type=str, nargs='?', default=".", help="Path to the folder containing your MP3 files.")
+    parser = argparse.ArgumentParser(description="Recursively transcribe MP3 files into formatted Word docs AND a compiled master doc.")
+    parser.add_argument("folder_path", type=str, nargs='?', default=".", help="Path to the main folder containing your MP3 files.")
     parser.add_argument("--output", type=str, default="Master_Transcriptions.docx", help="Name of the final compiled master file.")
     
     args = parser.parse_args()
