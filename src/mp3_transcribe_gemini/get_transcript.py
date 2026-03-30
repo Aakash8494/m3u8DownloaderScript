@@ -8,7 +8,15 @@ from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
 import google.generativeai as genai
+
+# --- NEW DOCX IMPORTS ---
 from docx import Document
+from docx.shared import Inches, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+# ------------------------
+
 from dotenv import load_dotenv
 
 # 1. Force Python to use the exact folder where this script is located
@@ -56,6 +64,28 @@ If the following text contains any Hindi/Devanagari script, transliterate it com
 If it is already entirely in English, return it exactly as is. 
 Only return the transformed title text. Do not add quotes, introductions, or extra punctuation.
 """
+
+# --- NEW HELPER FUNCTION FOR PAGE NUMBERS ---
+def add_page_number(run):
+    """Injects Word XML field codes to auto-generate page numbers."""
+    fldChar1 = OxmlElement('w:fldChar')
+    fldChar1.set(qn('w:fldCharType'), 'begin')
+
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')
+    instrText.text = "PAGE"
+
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+
+    fldChar3 = OxmlElement('w:fldChar')
+    fldChar3.set(qn('w:fldCharType'), 'end')
+
+    run._r.append(fldChar1)
+    run._r.append(instrText)
+    run._r.append(fldChar2)
+    run._r.append(fldChar3)
+# --------------------------------------------
 
 def get_clipboard_text():
     """Silently grabs whatever text is currently copied to the clipboard."""
@@ -125,7 +155,6 @@ def main():
         raw_title, channel = get_title_and_channel(page_url)
         print(f"Raw Title Found: {raw_title} ({channel})")
 
-        # --- NEW STEP: Transliterate the title if necessary ---
         print("Checking title for Hindi script...")
         try:
             title_response = model.generate_content([TITLE_PROMPT, raw_title])
@@ -139,7 +168,6 @@ def main():
         clean_channel = clean_filename(channel)
         clean_title = clean_filename(title)
 
-        # Create a dedicated folder for YouTube files
         base_dir = "YouTube_Transcripts"
         channel_dir = os.path.join(base_dir, clean_channel)
         os.makedirs(channel_dir, exist_ok=True)
@@ -147,7 +175,6 @@ def main():
         txt_file_path = os.path.join(channel_dir, f"{clean_title}.txt")
         doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx")
 
-        # 1. Download Raw Transcript
         print("Downloading raw transcript...")
         api = YouTubeTranscriptApi()
         
@@ -166,7 +193,6 @@ def main():
              transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
              text_lines = [entry['text'] if isinstance(entry, dict) else entry.text for entry in transcript_obj]
 
-        # Save raw backup to txt file
         video_link = f"https://www.youtube.com/watch?v={video_id}"
         header = f"Title:   {title}\nChannel: {channel}\nLink:    {video_link}\n{'-' * 50}\n\n"
         raw_full_text = " ".join(text_lines)
@@ -175,15 +201,48 @@ def main():
             f.write(header + raw_full_text)
         print(f"✅ Saved raw backup: {txt_file_path}")
 
-        # 2. Pass to Gemini for Formatting
         print("🤖 Sending raw text to Gemini for formatting and translation...")
         response = model.generate_content([PROMPT, raw_full_text])
         formatted_text = response.text
 
-        # 3. Write native Word Document from scratch
         print("📝 Creating beautifully formatted Word Document...")
         doc = Document()
-        # Uses the newly transliterated title as the main heading inside the doc
+        
+        # =========================================================
+        # --- NEW CUSTOM DOCUMENT FORMATTING ---
+        # =========================================================
+        
+        # 1. Set Custom Margins (Top: 0, Bottom: 0, Left: 0.17", Right: 4")
+        for section in doc.sections:
+            section.top_margin = Inches(0)
+            section.bottom_margin = Inches(0)
+            section.left_margin = Inches(0.17)
+            section.right_margin = Inches(4.0)
+            
+            # 2. Add Page Numbers to Footer Center
+            footer = section.footer
+            footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+            footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = footer_para.add_run()
+            add_page_number(run)
+
+        # 3. Shrink overall fonts 3 times
+        # Default font is 11pt, 3 shrinks = 8pt
+        style_normal = doc.styles['Normal']
+        style_normal.font.size = Pt(8)
+        
+        # Also proportionally shrink the Headings so they don't look giant 
+        # compared to the 8pt body text.
+        try:
+            doc.styles['Heading 1'].font.size = Pt(14)
+            doc.styles['Heading 2'].font.size = Pt(12)
+            doc.styles['Heading 3'].font.size = Pt(10)
+        except KeyError:
+            pass
+            
+        # =========================================================
+
+        # Add title
         safe_add_heading(doc, f"Source: {title}", level=1)
         
         lines = formatted_text.split('\n')
