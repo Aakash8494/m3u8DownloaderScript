@@ -102,124 +102,126 @@ def process_and_merge_mp3s(folder_path, output_filename):
         print(f"Error: The directory {folder_path} does not exist.")
         return
 
-    # --- NEW: RECURSIVE FILE SEARCH ---
-    mp3_files_paths = []
+    # --- NEW: GROUP FILES BY THEIR DIRECTORY ---
+    # Dictionary structure: { 'path/to/folder': ['file1.mp3', 'file2.mp3'] }
+    files_by_folder = {}
+    
     for root, dirs, files in os.walk(folder_path):
-        for file in files:
-            if file.lower().endswith('.mp3'):
-                # Store the full absolute path to the file
-                mp3_files_paths.append(os.path.join(root, file))
+        mp3_files = [f for f in files if f.lower().endswith('.mp3')]
+        if mp3_files:
+            # Sort files alphabetically
+            mp3_files.sort()
+            # Store the full absolute path for each mp3 in this specific folder
+            files_by_folder[root] = [os.path.join(root, f) for f in mp3_files]
     
-    # Sort files alphabetically by their full paths
-    mp3_files_paths.sort()
-    
-    if not mp3_files_paths:
+    if not files_by_folder:
         print(f"No MP3 files found in {folder_path} or its sub-directories.")
         return
 
-    print(f"Found {len(mp3_files_paths)} MP3 file(s) recursively in {folder_path}. Starting processing...\n")
-
-    # Create a completely fresh master document from scratch
-    master_doc = Document()
-    apply_custom_formatting(master_doc)
-
-    for i, file_path in enumerate(mp3_files_paths):
-        # Extract filename and the specific sub-folder it lives in
-        filename = os.path.basename(file_path)
-        parent_dir = os.path.dirname(file_path)
-        
-        # Calculate relative path just to make the console output cleaner
-        rel_path = os.path.relpath(parent_dir, folder_path)
+    # Process each folder independently
+    for current_folder, mp3_files_paths in files_by_folder.items():
+        rel_path = os.path.relpath(current_folder, folder_path)
         display_dir = "main folder" if rel_path == "." else rel_path
         
-        print(f"Uploading and processing: {filename} (from {display_dir})...")
+        print(f"\n[{display_dir}] Found {len(mp3_files_paths)} MP3 file(s). Starting processing...")
 
-        try:
-            # 1. Upload the audio file to the Gemini API using the full file_path
-            audio_file = genai.upload_file(path=file_path)
-            
-            while audio_file.state.name == "PROCESSING":
-                print(".", end="", flush=True)
-                time.sleep(2)
-                audio_file = genai.get_file(audio_file.name)
-            print(" Upload complete.")
+        # Create a completely fresh master document for THIS specific folder
+        master_doc = Document()
+        apply_custom_formatting(master_doc)
 
-            # 2. Generate the transcription
-            print("Generating transcription...")
-            response = model.generate_content([PROMPT, audio_file])
-            raw_text = response.text
+        for i, file_path in enumerate(mp3_files_paths):
+            filename = os.path.basename(file_path)
+            
+            print(f"  -> Uploading and processing: {filename}...")
 
-            # 3. Format and apply to BOTH individual and master documents
-            print("Formatting documents...")
-            
-            # Create a completely fresh document for this specific MP3
-            individual_doc = Document()
-            apply_custom_formatting(individual_doc)
-            
-            # Add a clear separator for the new audio file in the master document
-            master_doc.add_heading(f"Source: {filename}", level=1)
-            
-            # Split the raw text by hidden line breaks
-            lines = raw_text.split('\n')
-            
-            for line in lines:
-                text = line.strip()
-                if not text:
-                    continue 
-                    
-                # Handle Headings for both docs
-                if text.startswith("### "):
-                    clean_text = text[4:].strip()
-                    individual_doc.add_heading(clean_text, level=3)
-                    master_doc.add_heading(clean_text, level=3)
-                elif text.startswith("## "):
-                    clean_text = text[3:].strip()
-                    individual_doc.add_heading(clean_text, level=2)
-                    master_doc.add_heading(clean_text, level=2)
-                elif text.startswith("# "):
-                    clean_text = text[2:].strip()
-                    individual_doc.add_heading(clean_text, level=1)
-                    master_doc.add_heading(clean_text, level=1)
+            try:
+                # 1. Upload the audio file to the Gemini API using the full file_path
+                audio_file = genai.upload_file(path=file_path)
                 
-                # Handle Normal Paragraphs and Bold Text for both docs
-                else:
-                    ind_para = individual_doc.add_paragraph()
-                    mast_para = master_doc.add_paragraph()
+                while audio_file.state.name == "PROCESSING":
+                    print(".", end="", flush=True)
+                    time.sleep(2)
+                    audio_file = genai.get_file(audio_file.name)
+                print(" Upload complete.")
+
+                # 2. Generate the transcription
+                print("     Generating transcription...")
+                response = model.generate_content([PROMPT, audio_file])
+                raw_text = response.text
+
+                # 3. Format and apply to BOTH individual and master documents
+                print("     Formatting documents...")
+                
+                # Create a completely fresh document for this specific MP3
+                individual_doc = Document()
+                apply_custom_formatting(individual_doc)
+                
+                # ADD THE AUDIO FILE TITLE TO THE TOP OF BOTH DOCS
+                individual_doc.add_heading(f"Source: {filename}", level=1)
+                master_doc.add_heading(f"Source: {filename}", level=1)
+                
+                # Split the raw text by hidden line breaks
+                lines = raw_text.split('\n')
+                
+                for line in lines:
+                    text = line.strip()
+                    if not text:
+                        continue 
+                        
+                    # Handle Headings for both docs
+                    if text.startswith("### "):
+                        clean_text = text[4:].strip()
+                        individual_doc.add_heading(clean_text, level=3)
+                        master_doc.add_heading(clean_text, level=3)
+                    elif text.startswith("## "):
+                        clean_text = text[3:].strip()
+                        individual_doc.add_heading(clean_text, level=2)
+                        master_doc.add_heading(clean_text, level=2)
+                    elif text.startswith("# "):
+                        clean_text = text[2:].strip()
+                        individual_doc.add_heading(clean_text, level=1)
+                        master_doc.add_heading(clean_text, level=1)
                     
-                    parts = text.split("**")
-                    
-                    for idx, part in enumerate(parts):
-                        if part: 
-                            ind_run = ind_para.add_run(part)
-                            mast_run = mast_para.add_run(part)
-                            if idx % 2 != 0:
-                                ind_run.bold = True
-                                mast_run.bold = True
+                    # Handle Normal Paragraphs and Bold Text for both docs
+                    else:
+                        ind_para = individual_doc.add_paragraph()
+                        mast_para = master_doc.add_paragraph()
+                        
+                        parts = text.split("**")
+                        
+                        for idx, part in enumerate(parts):
+                            if part: 
+                                ind_run = ind_para.add_run(part)
+                                mast_run = mast_para.add_run(part)
+                                if idx % 2 != 0:
+                                    ind_run.bold = True
+                                    mast_run.bold = True
 
-            # Save the individual file in its respective sub-folder
-            individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
-            individual_path = os.path.join(parent_dir, individual_filename)
-            individual_doc.save(individual_path)
-            print(f"  Saved individual doc: {individual_path}")
+                # Save the individual file in the current sub-folder
+                individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
+                individual_path = os.path.join(current_folder, individual_filename)
+                individual_doc.save(individual_path)
+                print(f"     Saved individual doc: {individual_filename}")
 
-            # Add an empty line spacing between different audio files in the master doc
-            if i < len(mp3_files_paths) - 1:
-                master_doc.add_paragraph()
+                # Add an empty line spacing between different audio files in the master doc
+                if i < len(mp3_files_paths) - 1:
+                    master_doc.add_paragraph()
 
-            # Clean up the file from Google's servers
-            audio_file.delete()
-            print("  Done.\n")
+                # Clean up the file from Google's servers
+                audio_file.delete()
+                print("     Done.\n")
 
-        except Exception as e:
-            print(f"\nAn error occurred while processing {filename}: {e}\n")
+            except Exception as e:
+                print(f"\nAn error occurred while processing {filename}: {e}\n")
 
-    # 4. Save the final compiled master document in the MAIN folder
-    output_path = os.path.join(folder_path, output_filename)
-    master_doc.save(output_path)
-    print(f"Success! Master document compiled and saved to: {output_path}")
+        # 4. Save the compiled master document INSIDE the current folder
+        output_path = os.path.join(current_folder, output_filename)
+        master_doc.save(output_path)
+        print(f"Success! Master document for [{display_dir}] saved to: {output_path}")
+        print("-" * 50)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Recursively transcribe MP3 files into formatted Word docs AND a compiled master doc.")
+    parser = argparse.ArgumentParser(description="Recursively transcribe MP3 files into formatted Word docs AND a compiled master doc per folder.")
     parser.add_argument("folder_path", type=str, nargs='?', default=".", help="Path to the main folder containing your MP3 files.")
     parser.add_argument("--output", type=str, default="Master_Transcriptions.docx", help="Name of the final compiled master file.")
     
