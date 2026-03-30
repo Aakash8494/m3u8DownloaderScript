@@ -15,3 +15,5 @@ $folder = $shell.Namespace((Get-Location).Path)
 $folder.Items() | Select-Object Name, @{Name="Length";Expression={$folder.GetDetailsOf($_, 27)}}
 
 ## ps to list name and length
+
+venv\Scripts\Activate.ps1
