@@ -8,7 +8,25 @@
             "args": [
                 "-NoExit",
                 "-Command",
-                "cd src/mp3_transcribe_gemini; & C:\\m3u8\\venv\\Scripts\\Activate.ps1; python get_transcript.py"
+                "cd src/mp3_transcribe_gemini; & C:\\m3u8\\venv\\Scripts\\Activate.ps1;"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "Auto-run Script",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "cd src/mp3_transcribe_gemini; & C:\\m3u8\\venv\\Scripts\\Activate.ps1;"
             ],
             "group": "none",
             "presentation": {

@@ -2,7 +2,15 @@ import os
 import time
 import argparse
 import google.generativeai as genai
+
+# --- NEW DOCX IMPORTS ---
 from docx import Document
+from docx.shared import Inches, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+# ------------------------
+
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
@@ -37,6 +45,60 @@ Find the most important keywords, phrases, or main ideas inside each transcribed
 Return only the final formatted transcription. Do not add any extra introductory or concluding sentences before or after the text.
 """
 
+# =========================================================
+# --- NEW FORMATTING HELPER FUNCTIONS ---
+# =========================================================
+def add_page_number(run):
+    """Injects Word XML field codes to auto-generate page numbers."""
+    fldChar1 = OxmlElement('w:fldChar')
+    fldChar1.set(qn('w:fldCharType'), 'begin')
+
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')
+    instrText.text = "PAGE"
+
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+
+    fldChar3 = OxmlElement('w:fldChar')
+    fldChar3.set(qn('w:fldCharType'), 'end')
+
+    run._r.append(fldChar1)
+    run._r.append(instrText)
+    run._r.append(fldChar2)
+    run._r.append(fldChar3)
+
+def apply_custom_formatting(doc):
+    """Applies custom margins, page numbers, and shrinks the font."""
+    # 1. Set Custom Margins (Top: 0, Bottom: 0, Left: 0.17", Right: 4")
+    for section in doc.sections:
+        section.top_margin = Inches(0)
+        section.bottom_margin = Inches(0)
+        section.left_margin = Inches(0.17)
+        section.right_margin = Inches(4.0)
+        
+        # 2. Add Page Numbers to Footer Center
+        footer = section.footer
+        footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+        footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = footer_para.add_run()
+        add_page_number(run)
+
+    # 3. Shrink overall fonts 3 times
+    # Default font is 11pt, 3 shrinks = 8pt
+    style_normal = doc.styles['Normal']
+    style_normal.font.size = Pt(8)
+    
+    # Also proportionally shrink the Headings so they don't look giant 
+    # compared to the 8pt body text.
+    try:
+        doc.styles['Heading 1'].font.size = Pt(14)
+        doc.styles['Heading 2'].font.size = Pt(12)
+        doc.styles['Heading 3'].font.size = Pt(10)
+    except KeyError:
+        pass
+# =========================================================
+
 def process_and_merge_mp3s(folder_path, output_filename):
     folder_path = os.path.abspath(folder_path)
 
@@ -54,6 +116,7 @@ def process_and_merge_mp3s(folder_path, output_filename):
 
     # Create a completely fresh master document from scratch
     master_doc = Document()
+    apply_custom_formatting(master_doc) # <-- Apply formatting to master
 
     for i, filename in enumerate(mp3_files):
         file_path = os.path.join(folder_path, filename)
@@ -79,6 +142,7 @@ def process_and_merge_mp3s(folder_path, output_filename):
             
             # Create a completely fresh document for this specific MP3
             individual_doc = Document()
+            apply_custom_formatting(individual_doc) # <-- Apply formatting to individual doc
             
             # Add a clear separator for the new audio file in the master document
             master_doc.add_heading(f"Source: {filename}", level=1)
