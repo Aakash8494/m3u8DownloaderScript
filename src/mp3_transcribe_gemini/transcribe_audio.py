@@ -1,121 +1,237 @@
 import os
 import time
+import json
+import logging
 import argparse
-import google.generativeai as genai
+import concurrent.futures
+from functools import partial
 
+import google.generativeai as genai
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file
-load_dotenv()
+# =========================================================
+# --- CONFIGURATION & LOGGING ---
+# =========================================================
+CONFIG_FILE = "transcriber_config.json"
 
-# Retrieve your API Key safely
+DEFAULT_CONFIG = {
+    "MAX_WORKERS": 3,
+    "MAX_RETRIES": 3,
+    "MARGINS": {"top": 0.0, "bottom": 0.0, "left": 0.17, "right": 4.0},
+    "FONT_SIZES": {"Normal": 8, "Heading 1": 14, "Heading 2": 12, "Heading 3": 10},
+    "PROMPT": (
+        "You are an expert audio transcriber, strict text formatter, and translator. I have provided an MP3 audio file containing speech in either Hindi or English.\n\n"
+        "If the spoken audio is in Hindi, transcribe and transliterate it directly into Hinglish (Hindi words written using the English alphabet). If the spoken audio is in English, transcribe it exactly in English.\n"
+        "You must transcribe the exact spoken words. Do NOT add, delete, summarize, or skip a single spoken word from the audio. It must be a 100% word-for-word verbatim transcription of the speaker.\n\n"
+        "Since the audio lacks visible punctuation, you must deduce and add periods (full stops) where sentences naturally end based on the speaker's pauses and intonation. Always capitalize the first letter of the word immediately following a period.\n\n"
+        "Break the continuous transcription down into readable paragraphs of roughly 150 to 200 words. Additionally, if the speaker takes a significant pause or clearly transitions to a new topic, start a new paragraph.\n\n"
+        "Create a short, appropriate title/heading for every single paragraph based on what that section of the audio is about. Place the title right above its matching paragraph.\n\n"
+        "Find the most important keywords, phrases, or main ideas inside each transcribed paragraph and make them bold to make it easier to read.\n\n"
+        "Return only the final formatted transcription. Do not add any extra introductory or concluding sentences before or after the text."
+    )
+}
+
+def load_config():
+    if not os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(DEFAULT_CONFIG, f, indent=4)
+        return DEFAULT_CONFIG
+    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+CONFIG = load_config()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("transcription.log", encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+
+load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    print("Error: GEMINI_API_KEY not found. Please ensure your .env file is set up correctly.")
+    logging.error("GEMINI_API_KEY not found. Please ensure your .env file is set up correctly.")
     exit(1)
 
 genai.configure(api_key=api_key)
-
-# Initialize the updated, active model 
 model = genai.GenerativeModel('gemini-2.5-flash')
-
-# Define the Prompt 
-PROMPT = """
-You are an expert audio transcriber, strict text formatter, and translator. I have provided an MP3 audio file containing speech in either Hindi or English.
-
-If the spoken audio is in Hindi, transcribe and transliterate it directly into Hinglish (Hindi words written using the English alphabet). If the spoken audio is in English, transcribe it exactly in English.
-You must transcribe the exact spoken words. Do NOT add, delete, summarize, or skip a single spoken word from the audio. It must be a 100% word-for-word verbatim transcription of the speaker.
-
-Since the audio lacks visible punctuation, you must deduce and add periods (full stops) where sentences naturally end based on the speaker's pauses and intonation. Always capitalize the first letter of the word immediately following a period.
-
-Break the continuous transcription down into readable paragraphs of roughly 150 to 200 words. Additionally, if the speaker takes a significant pause or clearly transitions to a new topic, start a new paragraph.
-
-Create a short, appropriate title/heading for every single paragraph based on what that section of the audio is about. Place the title right above its matching paragraph.
-
-Find the most important keywords, phrases, or main ideas inside each transcribed paragraph and make them bold to make it easier to read.
-
-Return only the final formatted transcription. Do not add any extra introductory or concluding sentences before or after the text.
-"""
 
 # =========================================================
 # --- FORMATTING HELPER FUNCTIONS ---
 # =========================================================
 def add_page_number(run):
-    """Injects Word XML field codes to auto-generate page numbers."""
     fldChar1 = OxmlElement('w:fldChar')
     fldChar1.set(qn('w:fldCharType'), 'begin')
-
     instrText = OxmlElement('w:instrText')
     instrText.set(qn('xml:space'), 'preserve')
     instrText.text = "PAGE"
-
     fldChar2 = OxmlElement('w:fldChar')
     fldChar2.set(qn('w:fldCharType'), 'separate')
-
     fldChar3 = OxmlElement('w:fldChar')
     fldChar3.set(qn('w:fldCharType'), 'end')
-
-    run._r.append(fldChar1)
-    run._r.append(instrText)
-    run._r.append(fldChar2)
-    run._r.append(fldChar3)
+    run._r.extend([fldChar1, instrText, fldChar2, fldChar3])
 
 def apply_custom_formatting(doc):
-    """Applies custom margins, page numbers, and shrinks the font."""
-    # 1. Set Custom Margins (Top: 0, Bottom: 0, Left: 0.17", Right: 4")
+    """Applies custom margins, fonts, and strictly disables page breaks."""
+    margins = CONFIG["MARGINS"]
     for section in doc.sections:
-        section.top_margin = Inches(0)
-        section.bottom_margin = Inches(0)
-        section.left_margin = Inches(0.17)
-        section.right_margin = Inches(4.0)
+        section.top_margin = Inches(margins["top"])
+        section.bottom_margin = Inches(margins["bottom"])
+        section.left_margin = Inches(margins["left"])
+        section.right_margin = Inches(margins["right"])
         
-        # 2. Add Page Numbers to Footer Center
         footer = section.footer
         footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
         footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = footer_para.add_run()
-        add_page_number(run)
+        add_page_number(footer_para.add_run())
 
-    # 3. Shrink overall fonts 3 times (Default is 11pt, 3 shrinks = 8pt)
-    style_normal = doc.styles['Normal']
-    style_normal.font.size = Pt(8)
+    fonts = CONFIG["FONT_SIZES"]
+    doc.styles['Normal'].font.size = Pt(fonts["Normal"])
     
-    # Proportionally shrink Headings
-    try:
-        doc.styles['Heading 1'].font.size = Pt(14)
-        doc.styles['Heading 2'].font.size = Pt(12)
-        doc.styles['Heading 3'].font.size = Pt(10)
-    except KeyError:
-        pass
+    # Apply heading sizes and explicitly disable "Page Break Before" to save paper
+    for style_name in ['Heading 1', 'Heading 2', 'Heading 3']:
+        try:
+            style = doc.styles[style_name]
+            style.font.size = Pt(fonts[style_name])
+            style.paragraph_format.page_break_before = False
+        except KeyError:
+            pass
+
+def append_transcription_to_doc(doc, raw_text):
+    """Parses markdown text and applies it to a docx Document."""
+    lines = raw_text.split('\n')
+    for line in lines:
+        text = line.strip()
+        if not text:
+            continue 
+            
+        if text.startswith("### "):
+            doc.add_heading(text[4:].strip(), level=3)
+        elif text.startswith("## "):
+            doc.add_heading(text[3:].strip(), level=2)
+        elif text.startswith("# "):
+            doc.add_heading(text[2:].strip(), level=1)
+        else:
+            para = doc.add_paragraph()
+            parts = text.split("**")
+            for idx, part in enumerate(parts):
+                if part: 
+                    run = para.add_run(part)
+                    if idx % 2 != 0:
+                        run.bold = True
+
+def copy_doc_content(source_path, target_doc):
+    """Copies all paragraphs and formatting from an individual doc into the master doc."""
+    source_doc = Document(source_path)
+    for para in source_doc.paragraphs:
+        new_para = target_doc.add_paragraph(style=para.style.name)
+        new_para.alignment = para.alignment
+        for run in para.runs:
+            new_run = new_para.add_run(run.text)
+            new_run.bold = run.bold
+            new_run.italic = run.italic
+            new_run.underline = run.underline
+
 # =========================================================
+# --- CORE PROCESSING LOGIC ---
+# =========================================================
+def process_audio_task(file_path, current_folder):
+    """Handles checking existing docs, or uploading and generating new ones."""
+    filename = os.path.basename(file_path)
+    individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
+    individual_path = os.path.join(current_folder, individual_filename)
+    expected_title = f"Source: {filename}"
+    
+    # --- 1. Check if Doc Already Exists ---
+    if os.path.exists(individual_path):
+        try:
+            doc = Document(individual_path)
+            # Check if it has paragraphs and if the first one is the title
+            if len(doc.paragraphs) > 0 and expected_title not in doc.paragraphs[0].text:
+                logging.info(f"[{filename}] Existing doc found, but missing title. Injecting title...")
+                doc.paragraphs[0].insert_paragraph_before(expected_title, style='Heading 1')
+                doc.save(individual_path)
+                return filename, individual_path, True, None # True = Document was updated
+            else:
+                logging.info(f"[{filename}] Existing doc found and valid. Skipping API.")
+                return filename, individual_path, False, None # False = No updates needed
+        except Exception as e:
+            return filename, None, False, f"Failed reading existing doc: {e}"
+
+    # --- 2. Proceed with API Call if Doc is Missing ---
+    logging.info(f"[{filename}] No doc found. Starting API processing...")
+    raw_text = None
+    error_msg = None
+    
+    for attempt in range(CONFIG["MAX_RETRIES"]):
+        audio_file = None
+        try:
+            audio_file = genai.upload_file(path=file_path)
+            while audio_file.state.name == "PROCESSING":
+                time.sleep(2)
+                audio_file = genai.get_file(audio_file.name)
+            
+            logging.info(f"[{filename}] Upload complete. Generating text...")
+            response = model.generate_content([CONFIG["PROMPT"], audio_file])
+            raw_text = response.text
+            break  
+            
+        except Exception as e:
+            logging.warning(f"[{filename}] Attempt {attempt + 1} failed: {e}")
+            if attempt == CONFIG["MAX_RETRIES"] - 1:
+                error_msg = str(e)
+            else:
+                time.sleep(5 * (attempt + 1)) 
+                
+        finally:
+            if audio_file:
+                try:
+                    audio_file.delete()
+                except Exception as cleanup_error:
+                    logging.error(f"[{filename}] Failed to clean cloud file: {cleanup_error}")
+
+    if error_msg:
+        return filename, None, False, error_msg
+
+    # --- 3. Save New Individual Document ---
+    try:
+        individual_doc = Document()
+        apply_custom_formatting(individual_doc)
+        individual_doc.add_heading(expected_title, level=1)
+        append_transcription_to_doc(individual_doc, raw_text)
+        individual_doc.save(individual_path)
+        logging.info(f"[{filename}] Saved new individual document.")
+        
+        return filename, individual_path, True, None
+        
+    except Exception as e:
+        return filename, None, False, f"Word formatting error: {str(e)}"
 
 def process_and_merge_mp3s(folder_path, output_filename):
     folder_path = os.path.abspath(folder_path)
 
     if not os.path.isdir(folder_path):
-        print(f"Error: The directory {folder_path} does not exist.")
+        logging.error(f"The directory {folder_path} does not exist.")
         return
 
-    # --- NEW: GROUP FILES BY THEIR DIRECTORY ---
-    # Dictionary structure: { 'path/to/folder': ['file1.mp3', 'file2.mp3'] }
+    # Group files by their directory
     files_by_folder = {}
-    
     for root, dirs, files in os.walk(folder_path):
         mp3_files = [f for f in files if f.lower().endswith('.mp3')]
         if mp3_files:
-            # Sort files alphabetically
             mp3_files.sort()
-            # Store the full absolute path for each mp3 in this specific folder
             files_by_folder[root] = [os.path.join(root, f) for f in mp3_files]
     
     if not files_by_folder:
-        print(f"No MP3 files found in {folder_path} or its sub-directories.")
+        logging.warning(f"No MP3 files found in {folder_path} or its sub-directories.")
         return
 
     # Process each folder independently
@@ -123,105 +239,44 @@ def process_and_merge_mp3s(folder_path, output_filename):
         rel_path = os.path.relpath(current_folder, folder_path)
         display_dir = "main folder" if rel_path == "." else rel_path
         
-        print(f"\n[{display_dir}] Found {len(mp3_files_paths)} MP3 file(s). Starting processing...")
+        logging.info(f"=== Processing Directory: [{display_dir}] ({len(mp3_files_paths)} files) ===")
 
-        # Create a completely fresh master document for THIS specific folder
-        master_doc = Document()
-        apply_custom_formatting(master_doc)
+        # Process files in PARALLEL via ThreadPoolExecutor
+        task = partial(process_audio_task, current_folder=current_folder)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=CONFIG["MAX_WORKERS"]) as executor:
+            results = list(executor.map(task, mp3_files_paths))
 
-        for i, file_path in enumerate(mp3_files_paths):
-            filename = os.path.basename(file_path)
-            
-            print(f"  -> Uploading and processing: {filename}...")
+        # --- 4. Master Document Compilation ---
+        output_path = os.path.join(current_folder, output_filename)
+        
+        # Check if master doc is missing OR if any individual docs were just created/updated
+        master_needs_update = not os.path.exists(output_path) or any(updated for _, _, updated, _ in results)
 
-            try:
-                # 1. Upload the audio file to the Gemini API using the full file_path
-                audio_file = genai.upload_file(path=file_path)
+        if master_needs_update:
+            logging.info(f"Building/Updating continuous Master Document for [{display_dir}]...")
+            master_doc = Document()
+            apply_custom_formatting(master_doc)
+
+            # Sequentially copy contents from individual docs to guarantee matching text & continuous flow
+            for i, (filename, ind_path, _, error_msg) in enumerate(results):
+                if error_msg or not ind_path:
+                    logging.error(f"Skipping {filename} in master doc due to failure: {error_msg}")
+                    continue
                 
-                while audio_file.state.name == "PROCESSING":
-                    print(".", end="", flush=True)
-                    time.sleep(2)
-                    audio_file = genai.get_file(audio_file.name)
-                print(" Upload complete.")
+                # Copy the individual doc paragraphs directly into the master
+                copy_doc_content(ind_path, master_doc)
 
-                # 2. Generate the transcription
-                print("     Generating transcription...")
-                response = model.generate_content([PROMPT, audio_file])
-                raw_text = response.text
-
-                # 3. Format and apply to BOTH individual and master documents
-                print("     Formatting documents...")
-                
-                # Create a completely fresh document for this specific MP3
-                individual_doc = Document()
-                apply_custom_formatting(individual_doc)
-                
-                # ADD THE AUDIO FILE TITLE TO THE TOP OF BOTH DOCS
-                individual_doc.add_heading(f"Source: {filename}", level=1)
-                master_doc.add_heading(f"Source: {filename}", level=1)
-                
-                # Split the raw text by hidden line breaks
-                lines = raw_text.split('\n')
-                
-                for line in lines:
-                    text = line.strip()
-                    if not text:
-                        continue 
-                        
-                    # Handle Headings for both docs
-                    if text.startswith("### "):
-                        clean_text = text[4:].strip()
-                        individual_doc.add_heading(clean_text, level=3)
-                        master_doc.add_heading(clean_text, level=3)
-                    elif text.startswith("## "):
-                        clean_text = text[3:].strip()
-                        individual_doc.add_heading(clean_text, level=2)
-                        master_doc.add_heading(clean_text, level=2)
-                    elif text.startswith("# "):
-                        clean_text = text[2:].strip()
-                        individual_doc.add_heading(clean_text, level=1)
-                        master_doc.add_heading(clean_text, level=1)
-                    
-                    # Handle Normal Paragraphs and Bold Text for both docs
-                    else:
-                        ind_para = individual_doc.add_paragraph()
-                        mast_para = master_doc.add_paragraph()
-                        
-                        parts = text.split("**")
-                        
-                        for idx, part in enumerate(parts):
-                            if part: 
-                                ind_run = ind_para.add_run(part)
-                                mast_run = mast_para.add_run(part)
-                                if idx % 2 != 0:
-                                    ind_run.bold = True
-                                    mast_run.bold = True
-
-                # Save the individual file in the current sub-folder
-                individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
-                individual_path = os.path.join(current_folder, individual_filename)
-                individual_doc.save(individual_path)
-                print(f"     Saved individual doc: {individual_filename}")
-
-                # Add an empty line spacing between different audio files in the master doc
-                if i < len(mp3_files_paths) - 1:
+                # Add a single blank line between different audio file contents (no page break)
+                if i < len(results) - 1:
                     master_doc.add_paragraph()
 
-                # Clean up the file from Google's servers
-                audio_file.delete()
-                print("     Done.\n")
-
-            except Exception as e:
-                print(f"\nAn error occurred while processing {filename}: {e}\n")
-
-        # 4. Save the compiled master document INSIDE the current folder
-        output_path = os.path.join(current_folder, output_filename)
-        master_doc.save(output_path)
-        print(f"Success! Master document for [{display_dir}] saved to: {output_path}")
-        print("-" * 50)
+            master_doc.save(output_path)
+            logging.info(f"=== Success! Master doc for [{display_dir}] saved ===")
+        else:
+            logging.info(f"=== Master doc for [{display_dir}] already exists and is up-to-date. ===")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Recursively transcribe MP3 files into formatted Word docs AND a compiled master doc per folder.")
+    parser = argparse.ArgumentParser(description="Recursively, concurrently transcribe MP3 files into formatted Word docs.")
     parser.add_argument("folder_path", type=str, nargs='?', default=".", help="Path to the main folder containing your MP3 files.")
     parser.add_argument("--output", type=str, default="Master_Transcriptions.docx", help="Name of the final compiled master file.")
     

@@ -20,7 +20,7 @@
             }
         },
         {
-            "label": "Auto-run Script",
+            "label": "Second Terminal",
             "type": "shell",
             "command": "powershell",
             "args": [

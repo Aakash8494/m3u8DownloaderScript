@@ -1,0 +1,17 @@
+{
+    "MAX_WORKERS": 3,
+    "MAX_RETRIES": 3,
+    "MARGINS": {
+        "top": 0.0,
+        "bottom": 0.0,
+        "left": 0.17,
+        "right": 4.0
+    },
+    "FONT_SIZES": {
+        "Normal": 8,
+        "Heading 1": 14,
+        "Heading 2": 12,
+        "Heading 3": 10
+    },
+    "PROMPT": "You are an expert audio transcriber, strict text formatter, and translator. I have provided an MP3 audio file containing speech in either Hindi or English.\n\nIf the spoken audio is in Hindi, transcribe and transliterate it directly into Hinglish (Hindi words written using the English alphabet). If the spoken audio is in English, transcribe it exactly in English.\nYou must transcribe the exact spoken words. Do NOT add, delete, summarize, or skip a single spoken word from the audio. It must be a 100% word-for-word verbatim transcription of the speaker.\n\nSince the audio lacks visible punctuation, you must deduce and add periods (full stops) where sentences naturally end based on the speaker's pauses and intonation. Always capitalize the first letter of the word immediately following a period.\n\nBreak the continuous transcription down into readable paragraphs of roughly 150 to 200 words. Additionally, if the speaker takes a significant pause or clearly transitions to a new topic, start a new paragraph.\n\nCreate a short, appropriate title/heading for every single paragraph based on what that section of the audio is about. Place the title right above its matching paragraph.\n\nFind the most important keywords, phrases, or main ideas inside each transcribed paragraph and make them bold to make it easier to read.\n\nReturn only the final formatted transcription. Do not add any extra introductory or concluding sentences before or after the text."
+}
