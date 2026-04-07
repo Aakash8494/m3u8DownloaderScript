@@ -289,7 +289,7 @@ def main():
     # Setup the Master Document
     doc = setup_document()
     
-    base_dir = "YouTube_Transcripts"
+    base_dir = "Transcripts_YouTube"
     os.makedirs(base_dir, exist_ok=True)
 
     success_count = 0
