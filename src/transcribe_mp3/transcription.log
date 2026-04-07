@@ -5301,3 +5301,188 @@ Please retry in 59.735401915s. [links {
 }
 ]
 2026-03-31 13:47:01,886 [INFO] === Success! Master doc for [11 - technical side of game] saved ===
+2026-04-07 11:53:46,072 [INFO] === Processing Directory: [main folder] (11 files) ===
+2026-04-07 11:53:46,076 [INFO] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 11:53:46,077 [INFO] [DISCIPLINE  to Move Mountains, reach Mars and Meet God.mp3] No doc found. Starting API processing...
+2026-04-07 11:53:46,078 [INFO] [Desire and Action ｜ Prakhar ke Pravachan.mp3] No doc found. Starting API processing...
+2026-04-07 11:53:46,326 [WARNING] [Desire and Action ｜ Prakhar ke Pravachan.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\uff5c' in position 18: ordinal not in range(128)
+2026-04-07 11:53:46,333 [WARNING] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\uff1f' in position 20: ordinal not in range(128)
+2026-04-07 11:53:47,273 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:53:50,621 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2dFX4CJwaCDgh-EkDwyYZjbb1dpdrNJkDh8qH1la7qpmBO7N0pN1BWjxlbXdO7r_yjO9wcgLG3St7kyRKSA1wn32Bjczm53uFS4mKoOg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:53:50,623 [INFO] [DISCIPLINE  to Move Mountains, reach Mars and Meet God.mp3] Upload complete. Generating text...
+2026-04-07 11:53:50,623 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:53:51,328 [WARNING] [Desire and Action ｜ Prakhar ke Pravachan.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\uff5c' in position 18: ordinal not in range(128)
+2026-04-07 11:53:51,335 [WARNING] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\uff1f' in position 20: ordinal not in range(128)
+2026-04-07 11:54:01,330 [WARNING] [Desire and Action ｜ Prakhar ke Pravachan.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\uff5c' in position 18: ordinal not in range(128)
+2026-04-07 11:54:01,331 [INFO] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:01,331 [WARNING] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\uff1f' in position 45: ordinal not in range(128)
+2026-04-07 11:54:01,336 [WARNING] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\uff1f' in position 20: ordinal not in range(128)
+2026-04-07 11:54:01,336 [INFO] [Get anything you want in life using these 4 steps.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:02,198 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:54:03,432 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2Q0qwzdMPSbsUy0b6FVfvTisBq95k64RF-onWz2_tEYPOabZTLmatTvpIcKCvzuWgu6IKGXBwi1hjLZ1ZbPM42jdOztwIZzRzYzLzQ7TQ&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:06,333 [WARNING] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\uff1f' in position 45: ordinal not in range(128)
+2026-04-07 11:54:07,285 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2Q0qwzdMPSbsUy0b6FVfvTisBq95k64RF-onWz2_tEYPOabZTLmatTvpIcKCvzuWgu6IKGXBwi1hjLZ1ZbPM42jdOztwIZzRzYzLzQ7TQ&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:07,286 [INFO] [Get anything you want in life using these 4 steps.mp3] Upload complete. Generating text...
+2026-04-07 11:54:07,286 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:54:16,335 [WARNING] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\uff1f' in position 45: ordinal not in range(128)
+2026-04-07 11:54:16,335 [INFO] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:16,336 [WARNING] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\uff1f' in position 29: ordinal not in range(128)
+2026-04-07 11:54:17,190 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 11:54:19,356 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/otr4roe81xhv "HTTP/1.1 200 OK"
+2026-04-07 11:54:19,501 [INFO] [DISCIPLINE  to Move Mountains, reach Mars and Meet God.mp3] Saved new individual document.
+2026-04-07 11:54:19,502 [INFO] [Prakhar explains @JordanBPeterson  DOMINANCE HIERARCHY.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:20,221 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:54:21,338 [WARNING] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\uff1f' in position 29: ordinal not in range(128)
+2026-04-07 11:54:23,303 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2krykq8vWcXXkNgByZCwkdps3bct-lyKjK5fZZXf_6IE6ETWWjQQgwewxY_BtoeSEslRxNqEfMmi6eMpCDnusL5gD2i7Pb6K2vUySkXso&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:23,304 [INFO] [Prakhar explains @JordanBPeterson  DOMINANCE HIERARCHY.mp3] Upload complete. Generating text...
+2026-04-07 11:54:23,304 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:54:29,893 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 11:54:31,339 [WARNING] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\uff1f' in position 29: ordinal not in range(128)
+2026-04-07 11:54:31,340 [INFO] [THE POWER OF BELIEF - Placebo Effect ft. @Sidwarrier.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:31,985 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/36x9q9fg51w3 "HTTP/1.1 200 OK"
+2026-04-07 11:54:31,989 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:54:32,081 [INFO] [Get anything you want in life using these 4 steps.mp3] Saved new individual document.
+2026-04-07 11:54:32,083 [INFO] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:32,085 [WARNING] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\u2022' in position 43: ordinal not in range(128)
+2026-04-07 11:54:33,081 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0pswywPcNjqw9MSYcEHE3bzwCcL8bTBtJx5VZtbmeJnjSdLdMuWGJrty77pa1TigASLQn2TTiMz5UkbsZoaEgxfSZuepq3KlIgTTAkYA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:35,625 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0pswywPcNjqw9MSYcEHE3bzwCcL8bTBtJx5VZtbmeJnjSdLdMuWGJrty77pa1TigASLQn2TTiMz5UkbsZoaEgxfSZuepq3KlIgTTAkYA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:35,626 [INFO] [THE POWER OF BELIEF - Placebo Effect ft. @Sidwarrier.mp3] Upload complete. Generating text...
+2026-04-07 11:54:35,626 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:54:37,086 [WARNING] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\u2022' in position 43: ordinal not in range(128)
+2026-04-07 11:54:47,088 [WARNING] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\u2022' in position 43: ordinal not in range(128)
+2026-04-07 11:54:47,088 [INFO] [The Only TRUTH you need to Meditate upon.mp3] No doc found. Starting API processing...
+2026-04-07 11:54:47,756 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:54:49,303 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1uO8vBApdacyzatDWQ9eplI5xx_DJDYntkUzGqyR-flfhrIRdZTF0AeSEHKm30HdxyanEc0rQRfVIClWxzIkBGeBxurhLFXxV-gF4cmA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:52,492 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1uO8vBApdacyzatDWQ9eplI5xx_DJDYntkUzGqyR-flfhrIRdZTF0AeSEHKm30HdxyanEc0rQRfVIClWxzIkBGeBxurhLFXxV-gF4cmA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:54:52,493 [INFO] [The Only TRUTH you need to Meditate upon.mp3] Upload complete. Generating text...
+2026-04-07 11:54:52,494 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:54:52,885 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-04-07 11:54:52,886 [WARNING] [The Only TRUTH you need to Meditate upon.mp3] Attempt 1 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 6.758852855s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '6s'}]}}
+2026-04-07 11:55:00,225 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/jvlomdzc3x1h "HTTP/1.1 200 OK"
+2026-04-07 11:55:00,895 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:55:02,049 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0QJ0c4i6VDERG48Hj0Y4UP3_B5if4-3gpkKtjt93CCLw38fYULJGrnIwkxM2IEjmjHdxoVmHxWd-G8m_aGodlsZyfR9XlnoKNpnLqr9Q&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:55:04,457 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 11:55:04,613 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0QJ0c4i6VDERG48Hj0Y4UP3_B5if4-3gpkKtjt93CCLw38fYULJGrnIwkxM2IEjmjHdxoVmHxWd-G8m_aGodlsZyfR9XlnoKNpnLqr9Q&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:55:04,614 [INFO] [The Only TRUTH you need to Meditate upon.mp3] Upload complete. Generating text...
+2026-04-07 11:55:04,614 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:55:04,998 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-04-07 11:55:04,999 [WARNING] [The Only TRUTH you need to Meditate upon.mp3] Attempt 2 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 54.651031899s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '54s'}]}}
+2026-04-07 11:55:07,255 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/hrhonjxlp74x "HTTP/1.1 200 OK"
+2026-04-07 11:55:07,360 [INFO] [Prakhar explains @JordanBPeterson  DOMINANCE HIERARCHY.mp3] Saved new individual document.
+2026-04-07 11:55:07,362 [INFO] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] No doc found. Starting API processing...
+2026-04-07 11:55:07,365 [WARNING] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] Attempt 1 failed: 'ascii' codec can't encode character '\uff1f' in position 34: ordinal not in range(128)
+2026-04-07 11:55:12,367 [WARNING] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] Attempt 2 failed: 'ascii' codec can't encode character '\uff1f' in position 34: ordinal not in range(128)
+2026-04-07 11:55:17,966 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/2c1esic15qub "HTTP/1.1 200 OK"
+2026-04-07 11:55:18,683 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 11:55:19,978 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1nYQm9UxqMvETZWV3UFDRswAqdluBaFqwOf1Toc-FvT1YDyLo-Ezbt6ThVlgmKJCtk5TTAjQ2itpzd7O7GzLqWsyn_Bh9-7wp8JwA4XA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:55:22,368 [WARNING] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] Attempt 3 failed: 'ascii' codec can't encode character '\uff1f' in position 34: ordinal not in range(128)
+2026-04-07 11:55:22,666 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 11:55:22,828 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1nYQm9UxqMvETZWV3UFDRswAqdluBaFqwOf1Toc-FvT1YDyLo-Ezbt6ThVlgmKJCtk5TTAjQ2itpzd7O7GzLqWsyn_Bh9-7wp8JwA4XA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 11:55:22,829 [INFO] [The Only TRUTH you need to Meditate upon.mp3] Upload complete. Generating text...
+2026-04-07 11:55:22,829 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 11:55:23,243 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-04-07 11:55:23,244 [WARNING] [The Only TRUTH you need to Meditate upon.mp3] Attempt 3 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 36.43175189s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '36s'}]}}
+2026-04-07 11:55:25,069 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/ka1ivsbj5ey3 "HTTP/1.1 200 OK"
+2026-04-07 11:55:25,187 [INFO] [THE POWER OF BELIEF - Placebo Effect ft. @Sidwarrier.mp3] Saved new individual document.
+2026-04-07 11:55:25,424 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/089hjl9bj9s8 "HTTP/1.1 200 OK"
+2026-04-07 11:55:25,427 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 11:55:25,465 [ERROR] Skipping 'What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3 in master doc due to failure: 'ascii' codec can't encode character '\uff1f' in position 20: ordinal not in range(128)
+2026-04-07 11:55:25,672 [ERROR] Skipping Desire and Action ｜ Prakhar ke Pravachan.mp3 in master doc due to failure: 'ascii' codec can't encode character '\uff5c' in position 18: ordinal not in range(128)
+2026-04-07 11:55:25,672 [ERROR] Skipping Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3 in master doc due to failure: 'ascii' codec can't encode character '\uff1f' in position 45: ordinal not in range(128)
+2026-04-07 11:55:25,849 [ERROR] Skipping LAW OF ATTRACTION BAKWAAS HAI？.mp3 in master doc due to failure: 'ascii' codec can't encode character '\uff1f' in position 29: ordinal not in range(128)
+2026-04-07 11:55:26,136 [ERROR] Skipping The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3 in master doc due to failure: 'ascii' codec can't encode character '\u2022' in position 43: ordinal not in range(128)
+2026-04-07 11:55:26,136 [ERROR] Skipping The Only TRUTH you need to Meditate upon.mp3 in master doc due to failure: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 36.43175189s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '36s'}]}}
+2026-04-07 11:55:26,137 [ERROR] Skipping Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3 in master doc due to failure: 'ascii' codec can't encode character '\uff1f' in position 34: ordinal not in range(128)
+2026-04-07 11:55:26,160 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 12:18:00,382 [INFO] === Processing Directory: [main folder] (11 files) ===
+2026-04-07 12:18:00,386 [INFO] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 12:18:01,254 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:18:02,542 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1k0UYRRn90ctNlophxih_keuPx5O9riN3wFx8QkxWhuhlntClnSnRCUbki-nEX0BIFGC29msTYKz5GAEek6ucH5PXoW3_U7NIdqDH38g&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:18:03,609 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1k0UYRRn90ctNlophxih_keuPx5O9riN3wFx8QkxWhuhlntClnSnRCUbki-nEX0BIFGC29msTYKz5GAEek6ucH5PXoW3_U7NIdqDH38g&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:18:06,341 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1k0UYRRn90ctNlophxih_keuPx5O9riN3wFx8QkxWhuhlntClnSnRCUbki-nEX0BIFGC29msTYKz5GAEek6ucH5PXoW3_U7NIdqDH38g&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:18:06,343 [INFO] ['What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 12:18:06,344 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:18:29,806 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:18:32,514 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/qfxbvhoe9u3t "HTTP/1.1 200 OK"
+2026-04-07 12:18:32,580 [INFO] [DISCIPLINE  to Move Mountains, reach Mars and Meet God.mp3] Existing doc found and valid. Skipping API.
+2026-04-07 12:18:32,582 [INFO] [Desire and Action ｜ Prakhar ke Pravachan.mp3] No doc found. Starting API processing...
+2026-04-07 12:18:33,285 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:18:36,163 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1pD0RlMWESCZki1qCugwqk_t-UNiAE1Or4QGz7zoyoPVKBvI3ddc7zvu16V4ycHOunwizP9C5goyTJCYHfRb5HdJN-nTGH8IUl1OM8PA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:18:36,164 [INFO] [Desire and Action ｜ Prakhar ke Pravachan.mp3] Upload complete. Generating text...
+2026-04-07 12:18:36,164 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:18:49,165 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:18:51,173 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/nqocg1oruwkp "HTTP/1.1 200 OK"
+2026-04-07 12:18:51,217 [INFO] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] No doc found. Starting API processing...
+2026-04-07 12:18:51,917 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:18:55,256 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1M-CyxGRoD_P4aduCQgiXmWlrMJm4kEkzG9obHjRjfw9HGi39eL6Ixx6vJZxGVCErPcV06UrJYjFatNz96zvW2XM72XzIt71ip3YmoVac&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:18:55,257 [INFO] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] Upload complete. Generating text...
+2026-04-07 12:18:55,257 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:19:26,669 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:19:28,704 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/7akm9n7gtka8 "HTTP/1.1 200 OK"
+2026-04-07 12:19:28,971 [INFO] [Gathering KNOWLEDGE to Fantasize or Implement？ ｜ QNA clip.mp3] Saved new individual document.
+2026-04-07 12:19:29,134 [INFO] [Get anything you want in life using these 4 steps.mp3] Existing doc found and valid. Skipping API.
+2026-04-07 12:19:29,134 [INFO] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] No doc found. Starting API processing...
+2026-04-07 12:19:29,787 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:19:31,093 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3ImQz05M1WZoWNLS-ceSvac9JM4611LZgHk_kbST-sX93PqJe3xKs-L9z-t-nbYrTDAA5EppXtPYtc-05Mm_vkMlh8x7uhz-I8qe0JGw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:19:33,697 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3ImQz05M1WZoWNLS-ceSvac9JM4611LZgHk_kbST-sX93PqJe3xKs-L9z-t-nbYrTDAA5EppXtPYtc-05Mm_vkMlh8x7uhz-I8qe0JGw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:19:33,698 [INFO] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] Upload complete. Generating text...
+2026-04-07 12:19:33,698 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:20:16,919 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:20:19,120 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/jgyrtvitx6no "HTTP/1.1 200 OK"
+2026-04-07 12:20:19,306 [INFO] [LAW OF ATTRACTION BAKWAAS HAI？.mp3] Saved new individual document.
+2026-04-07 12:20:19,326 [INFO] [Prakhar explains @JordanBPeterson  DOMINANCE HIERARCHY.mp3] Existing doc found and valid. Skipping API.
+2026-04-07 12:20:19,362 [INFO] [THE POWER OF BELIEF - Placebo Effect ft. @Sidwarrier.mp3] Existing doc found and valid. Skipping API.
+2026-04-07 12:20:19,364 [INFO] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] No doc found. Starting API processing...
+2026-04-07 12:20:20,025 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:20:21,058 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3gAAs9MZl3--jix893XPur29KFfjVgKb3Q18fK9mMCV5cPB_F8KgqngUovfIWCiE_0DpjGt-fUgwEJ-ai0j62hcvQ01Jpw6GoGDX1yDH0&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:20:23,687 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3gAAs9MZl3--jix893XPur29KFfjVgKb3Q18fK9mMCV5cPB_F8KgqngUovfIWCiE_0DpjGt-fUgwEJ-ai0j62hcvQ01Jpw6GoGDX1yDH0&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:20:23,688 [INFO] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] Upload complete. Generating text...
+2026-04-07 12:20:23,688 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:20:56,820 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:20:59,054 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/a09mrw3otukf "HTTP/1.1 200 OK"
+2026-04-07 12:20:59,204 [INFO] [The Blue Print of all Personal Development • Self Help ｜ Experiment Observe Adapt.mp3] Saved new individual document.
+2026-04-07 12:20:59,205 [INFO] [The Only TRUTH you need to Meditate upon.mp3] No doc found. Starting API processing...
+2026-04-07 12:20:59,930 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:21:00,789 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3CZfb_5B3-xWu6JNe3w6teCLxOD2uuHarRlqUGXam8g_krwV42XFUno9HqzLg9vAa3U_II9-MJn5FQgk9OEGyJ7buqJsyNiaQl_nYhzg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:21:03,604 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3CZfb_5B3-xWu6JNe3w6teCLxOD2uuHarRlqUGXam8g_krwV42XFUno9HqzLg9vAa3U_II9-MJn5FQgk9OEGyJ7buqJsyNiaQl_nYhzg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:21:03,605 [INFO] [The Only TRUTH you need to Meditate upon.mp3] Upload complete. Generating text...
+2026-04-07 12:21:03,605 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:21:46,020 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:21:48,220 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/15s4zmi09il3 "HTTP/1.1 200 OK"
+2026-04-07 12:21:48,431 [INFO] [The Only TRUTH you need to Meditate upon.mp3] Saved new individual document.
+2026-04-07 12:21:48,432 [INFO] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] No doc found. Starting API processing...
+2026-04-07 12:21:49,084 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:21:51,752 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1OQo2TLX3mqz-1PtqtF6iC7jvm5rNQURTm5koAjJOlRH8lnTZyb9ThuCXhtwmgDsAvve18A8IBQXtsA5uwSGUiiuPKV6chYNe5bA1Tbuc&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:21:51,753 [INFO] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] Upload complete. Generating text...
+2026-04-07 12:21:51,753 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:22:11,681 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:22:13,907 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/9n4yzjfc2gv9 "HTTP/1.1 200 OK"
+2026-04-07 12:22:14,004 [INFO] [Why Motivational videos DONT WORK ？ ｜ Motivation videos ke jaal se kaise bache ｜ HINDI 2020.mp3] Saved new individual document.
+2026-04-07 12:22:14,006 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 12:22:14,045 [ERROR] Skipping 'What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3 in master doc due to failure: Word formatting error: 'NoneType' object has no attribute 'split'
+2026-04-07 12:22:14,308 [ERROR] Skipping Desire and Action ｜ Prakhar ke Pravachan.mp3 in master doc due to failure: Word formatting error: 'NoneType' object has no attribute 'split'
+2026-04-07 12:22:15,818 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 12:24:18,776 [INFO] Scanning and aggressively sanitizing filenames...
+2026-04-07 12:24:18,777 [INFO] 🧹 Sanitized filename: ''What do we live for？' ｜ Reacting to Dead Poets Society｜ The Philosophy of Meaning.mp3' -> 'What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3'
+2026-04-07 12:24:18,779 [INFO] 🧹 Sanitized filename: 'Desire and Action ｜ Prakhar ke Pravachan.mp3' -> 'Desire and Action Prakhar ke Pravachan.mp3'
+2026-04-07 12:24:18,779 [INFO] === Processing Directory: [main folder] (2 files) ===
+2026-04-07 12:24:18,782 [INFO] [Desire and Action Prakhar ke Pravachan.mp3] No doc found. Starting API processing...
+2026-04-07 12:24:19,636 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:24:23,741 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG36XdxV5hP7qC_miAo9EbNFMzFf2LTz97uDWXuBEIt39LGjGXXWzHH_dpXADX-TGIO0AFoIkEr48LHHxlTN1tvEk8c8WJk2mqciY5t-LxY&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:24:23,742 [INFO] [Desire and Action Prakhar ke Pravachan.mp3] Upload complete. Generating text...
+2026-04-07 12:24:23,742 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:24:47,824 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:24:50,639 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/rqvyp8j005go "HTTP/1.1 200 OK"
+2026-04-07 12:24:50,800 [INFO] [Desire and Action Prakhar ke Pravachan.mp3] Saved new individual document.
+2026-04-07 12:24:50,801 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 12:24:51,687 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:24:52,573 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1RqtpUb7l5Qoed6O7kGoWwtCjZpLhre3YnIbA-2AEHJV45dAN3Zs7bi-Tk2Kkh4R64JGIHcxmj1VgRe4PNN9VQbhKmWMHHYDq7KjqKVA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:24:53,660 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1RqtpUb7l5Qoed6O7kGoWwtCjZpLhre3YnIbA-2AEHJV45dAN3Zs7bi-Tk2Kkh4R64JGIHcxmj1VgRe4PNN9VQbhKmWMHHYDq7KjqKVA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:24:56,766 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1RqtpUb7l5Qoed6O7kGoWwtCjZpLhre3YnIbA-2AEHJV45dAN3Zs7bi-Tk2Kkh4R64JGIHcxmj1VgRe4PNN9VQbhKmWMHHYDq7KjqKVA&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:24:56,767 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 12:24:56,768 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:26:24,326 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:26:26,745 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/glxz8464ttpn "HTTP/1.1 200 OK"
+2026-04-07 12:26:26,784 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 12:26:27,324 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Word formatting error: 'NoneType' object has no attribute 'split'
+2026-04-07 12:26:27,351 [INFO] === Success! Master doc for [main folder] saved ===

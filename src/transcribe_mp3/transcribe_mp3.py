@@ -1,12 +1,15 @@
 import os
+import re
 import time
 import json
 import logging
-import argparse
 import concurrent.futures
 from functools import partial
 
-import google.generativeai as genai
+# --- NEW GEMINI SDK IMPORTS ---
+from google import genai
+# ------------------------------
+
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -20,8 +23,8 @@ from dotenv import load_dotenv
 CONFIG_FILE = "transcriber_config.json"
 
 DEFAULT_CONFIG = {
-    "MAX_WORKERS": 3,
-    "MAX_RETRIES": 3,
+    "MAX_WORKERS": 1, # FORCED TO 1 TO PREVENT RATE LIMITS
+    "MAX_RETRIES": 5, # INCREASED TO ALLOW FOR LONG COOLDOWNS
     "MARGINS": {"top": 0.0, "bottom": 0.0, "left": 0.17, "right": 4.0},
     "FONT_SIZES": {"Normal": 8, "Heading 1": 14, "Heading 2": 12, "Heading 3": 10},
     "PROMPT": (
@@ -45,6 +48,8 @@ def load_config():
         return json.load(f)
 
 CONFIG = load_config()
+CONFIG["MAX_WORKERS"] = 1
+CONFIG["MAX_RETRIES"] = 5
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,8 +66,47 @@ if not api_key:
     logging.error("GEMINI_API_KEY not found. Please ensure your .env file is set up correctly.")
     exit(1)
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-2.5-flash')
+client = genai.Client(api_key=api_key)
+
+# =========================================================
+# --- FILENAME SANITIZATION HELPER ---
+# =========================================================
+def sanitize_filename(filename):
+    """STRICT CLEANUP: Keeps only English letters, numbers, and spaces."""
+    name, ext = os.path.splitext(filename)
+    
+    # Nuke everything that is NOT an uppercase letter, lowercase letter, number, or space
+    name = re.sub(r'[^a-zA-Z0-9\s]', '', name)
+    
+    # Remove any awkward double spaces left behind by the deleted characters
+    name = re.sub(r'\s+', ' ', name).strip()
+    
+    # Fallback if the entire filename was emojis or Hindi script and got completely wiped
+    if not name:
+        name = f"audio_track_{int(time.time())}"
+        
+    return name + ext
+
+def sanitize_directory_filenames(folder_path):
+    """Sweeps the directory and permanently cleans up MP3 and DOCX filenames."""
+    for root, dirs, files in os.walk(folder_path):
+        for filename in files:
+            if filename.lower().endswith(('.mp3', '.docx')):
+                clean_name = sanitize_filename(filename)
+                if clean_name != filename:
+                    old_path = os.path.join(root, filename)
+                    new_path = os.path.join(root, clean_name)
+                    
+                    # Ensure we don't overwrite another file
+                    if os.path.exists(new_path):
+                        base, ext = os.path.splitext(clean_name)
+                        new_path = os.path.join(root, f"{base}_{int(time.time())}{ext}")
+                        
+                    try:
+                        os.rename(old_path, new_path)
+                        logging.info(f"🧹 Sanitized filename: '{filename}' -> '{os.path.basename(new_path)}'")
+                    except Exception as e:
+                        logging.error(f"Failed to rename '{filename}': {e}")
 
 # =========================================================
 # --- FORMATTING HELPER FUNCTIONS ---
@@ -80,7 +124,6 @@ def add_page_number(run):
     run._r.extend([fldChar1, instrText, fldChar2, fldChar3])
 
 def apply_custom_formatting(doc):
-    """Applies custom margins, fonts, and strictly disables page breaks."""
     margins = CONFIG["MARGINS"]
     for section in doc.sections:
         section.top_margin = Inches(margins["top"])
@@ -96,7 +139,6 @@ def apply_custom_formatting(doc):
     fonts = CONFIG["FONT_SIZES"]
     doc.styles['Normal'].font.size = Pt(fonts["Normal"])
     
-    # Apply heading sizes and explicitly disable "Page Break Before" to save paper
     for style_name in ['Heading 1', 'Heading 2', 'Heading 3']:
         try:
             style = doc.styles[style_name]
@@ -106,7 +148,6 @@ def apply_custom_formatting(doc):
             pass
 
 def append_transcription_to_doc(doc, raw_text):
-    """Parses markdown text and applies it to a docx Document."""
     lines = raw_text.split('\n')
     for line in lines:
         text = line.strip()
@@ -129,7 +170,6 @@ def append_transcription_to_doc(doc, raw_text):
                         run.bold = True
 
 def copy_doc_content(source_path, target_doc):
-    """Copies all paragraphs and formatting from an individual doc into the master doc."""
     source_doc = Document(source_path)
     for para in source_doc.paragraphs:
         new_para = target_doc.add_paragraph(style=para.style.name)
@@ -144,7 +184,6 @@ def copy_doc_content(source_path, target_doc):
 # --- CORE PROCESSING LOGIC ---
 # =========================================================
 def process_audio_task(file_path, current_folder):
-    """Handles checking existing docs, or uploading and generating new ones."""
     filename = os.path.basename(file_path)
     individual_filename = f"{os.path.splitext(filename)[0]}_transcribed.docx"
     individual_path = os.path.join(current_folder, individual_filename)
@@ -154,47 +193,60 @@ def process_audio_task(file_path, current_folder):
     if os.path.exists(individual_path):
         try:
             doc = Document(individual_path)
-            # Check if it has paragraphs and if the first one is the title
             if len(doc.paragraphs) > 0 and expected_title not in doc.paragraphs[0].text:
                 logging.info(f"[{filename}] Existing doc found, but missing title. Injecting title...")
                 doc.paragraphs[0].insert_paragraph_before(expected_title, style='Heading 1')
                 doc.save(individual_path)
-                return filename, individual_path, True, None # True = Document was updated
+                return filename, individual_path, True, None
             else:
                 logging.info(f"[{filename}] Existing doc found and valid. Skipping API.")
-                return filename, individual_path, False, None # False = No updates needed
+                return filename, individual_path, False, None 
         except Exception as e:
             return filename, None, False, f"Failed reading existing doc: {e}"
 
     # --- 2. Proceed with API Call if Doc is Missing ---
     logging.info(f"[{filename}] No doc found. Starting API processing...")
+
     raw_text = None
     error_msg = None
     
     for attempt in range(CONFIG["MAX_RETRIES"]):
         audio_file = None
         try:
-            audio_file = genai.upload_file(path=file_path)
+            # Upload using the now completely stripped and safe filename
+            audio_file = client.files.upload(file=file_path)
+            
             while audio_file.state.name == "PROCESSING":
                 time.sleep(2)
-                audio_file = genai.get_file(audio_file.name)
+                audio_file = client.files.get(name=audio_file.name)
             
             logging.info(f"[{filename}] Upload complete. Generating text...")
-            response = model.generate_content([CONFIG["PROMPT"], audio_file])
+            
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=[CONFIG["PROMPT"], audio_file]
+            )
             raw_text = response.text
             break  
             
         except Exception as e:
-            logging.warning(f"[{filename}] Attempt {attempt + 1} failed: {e}")
+            error_str = str(e)
+            logging.warning(f"[{filename}] Attempt {attempt + 1} failed: {error_str}")
+            
             if attempt == CONFIG["MAX_RETRIES"] - 1:
-                error_msg = str(e)
+                error_msg = error_str
             else:
-                time.sleep(5 * (attempt + 1)) 
+                # 🚨 SMART COOLDOWN FOR RATE LIMITS 🚨
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "Quota" in error_str:
+                    logging.info(f"⏳ Rate limit detected for [{filename}]. Sleeping for 65 seconds...")
+                    time.sleep(65)
+                else:
+                    time.sleep(10)
                 
         finally:
             if audio_file:
                 try:
-                    audio_file.delete()
+                    client.files.delete(name=audio_file.name)
                 except Exception as cleanup_error:
                     logging.error(f"[{filename}] Failed to clean cloud file: {cleanup_error}")
 
@@ -221,8 +273,11 @@ def process_and_merge_mp3s(folder_path, output_filename):
     if not os.path.isdir(folder_path):
         logging.error(f"The directory {folder_path} does not exist.")
         return
+        
+    # --- SANITIZE ALL FILES BEFORE DOING ANYTHING ELSE ---
+    logging.info("Scanning and aggressively sanitizing filenames...")
+    sanitize_directory_filenames(folder_path)
 
-    # Group files by their directory
     files_by_folder = {}
     for root, dirs, files in os.walk(folder_path):
         mp3_files = [f for f in files if f.lower().endswith('.mp3')]
@@ -234,22 +289,17 @@ def process_and_merge_mp3s(folder_path, output_filename):
         logging.warning(f"No MP3 files found in {folder_path} or its sub-directories.")
         return
 
-    # Process each folder independently
     for current_folder, mp3_files_paths in files_by_folder.items():
         rel_path = os.path.relpath(current_folder, folder_path)
         display_dir = "main folder" if rel_path == "." else rel_path
         
         logging.info(f"=== Processing Directory: [{display_dir}] ({len(mp3_files_paths)} files) ===")
 
-        # Process files in PARALLEL via ThreadPoolExecutor
         task = partial(process_audio_task, current_folder=current_folder)
         with concurrent.futures.ThreadPoolExecutor(max_workers=CONFIG["MAX_WORKERS"]) as executor:
             results = list(executor.map(task, mp3_files_paths))
 
-        # --- 4. Master Document Compilation ---
         output_path = os.path.join(current_folder, output_filename)
-        
-        # Check if master doc is missing OR if any individual docs were just created/updated
         master_needs_update = not os.path.exists(output_path) or any(updated for _, _, updated, _ in results)
 
         if master_needs_update:
@@ -257,16 +307,13 @@ def process_and_merge_mp3s(folder_path, output_filename):
             master_doc = Document()
             apply_custom_formatting(master_doc)
 
-            # Sequentially copy contents from individual docs to guarantee matching text & continuous flow
             for i, (filename, ind_path, _, error_msg) in enumerate(results):
                 if error_msg or not ind_path:
                     logging.error(f"Skipping {filename} in master doc due to failure: {error_msg}")
                     continue
                 
-                # Copy the individual doc paragraphs directly into the master
                 copy_doc_content(ind_path, master_doc)
 
-                # Add a single blank line between different audio file contents (no page break)
                 if i < len(results) - 1:
                     master_doc.add_paragraph()
 
@@ -276,9 +323,16 @@ def process_and_merge_mp3s(folder_path, output_filename):
             logging.info(f"=== Master doc for [{display_dir}] already exists and is up-to-date. ===")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Recursively, concurrently transcribe MP3 files into formatted Word docs.")
-    parser.add_argument("folder_path", type=str, nargs='?', default=".", help="Path to the main folder containing your MP3 files.")
-    parser.add_argument("--output", type=str, default="Master_Transcriptions.docx", help="Name of the final compiled master file.")
+    print("\n" + "=" * 50)
+    print("🎙️ Local Audio Transcriber & Formatter 🎙️")
+    print("=" * 50)
     
-    args = parser.parse_args()
-    process_and_merge_mp3s(args.folder_path, args.output)
+    folder_input = input("Enter the path to the folder containing your MP3 files\n(or just press Enter to scan the current folder): ").strip()
+    
+    folder_path = folder_input if folder_input else "."
+    output_filename = "Master_Transcriptions.docx"
+    
+    print("\nStarting process...\n")
+    process_and_merge_mp3s(folder_path, output_filename)
+    
+    input("\nAll tasks finished. Press Enter to exit...")
