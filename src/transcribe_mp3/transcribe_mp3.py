@@ -8,6 +8,7 @@ from functools import partial
 
 # --- NEW GEMINI SDK IMPORTS ---
 from google import genai
+from google.genai import types
 # ------------------------------
 
 from docx import Document
@@ -213,7 +214,6 @@ def process_audio_task(file_path, current_folder):
     for attempt in range(CONFIG["MAX_RETRIES"]):
         audio_file = None
         try:
-            # Upload using the now completely stripped and safe filename
             audio_file = client.files.upload(file=file_path)
             
             while audio_file.state.name == "PROCESSING":
@@ -224,8 +224,33 @@ def process_audio_task(file_path, current_folder):
             
             response = client.models.generate_content(
                 model='gemini-2.5-flash',
-                contents=[CONFIG["PROMPT"], audio_file]
+                contents=[CONFIG["PROMPT"], audio_file],
+                config=types.GenerateContentConfig(
+                    safety_settings=[
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                    ]
+                )
             )
+            
+            # 🚨 NEW SAFETY FILTER CHECK 🚨
+            if not response.text:
+                raise Exception("Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).")
+                
             raw_text = response.text
             break  
             
@@ -236,10 +261,13 @@ def process_audio_task(file_path, current_folder):
             if attempt == CONFIG["MAX_RETRIES"] - 1:
                 error_msg = error_str
             else:
-                # 🚨 SMART COOLDOWN FOR RATE LIMITS 🚨
                 if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "Quota" in error_str:
                     logging.info(f"⏳ Rate limit detected for [{filename}]. Sleeping for 65 seconds...")
                     time.sleep(65)
+                # Don't bother retrying if it's a hard safety filter block
+                elif "Safety Filters" in error_str:
+                    error_msg = error_str
+                    break 
                 else:
                     time.sleep(10)
                 

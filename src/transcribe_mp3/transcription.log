@@ -5486,3 +5486,43 @@ Please retry in 59.735401915s. [links {
 2026-04-07 12:26:26,784 [INFO] Building/Updating continuous Master Document for [main folder]...
 2026-04-07 12:26:27,324 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Word formatting error: 'NoneType' object has no attribute 'split'
 2026-04-07 12:26:27,351 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 12:28:52,107 [INFO] Scanning and aggressively sanitizing filenames...
+2026-04-07 12:28:52,108 [INFO] === Processing Directory: [main folder] (1 files) ===
+2026-04-07 12:28:52,111 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 12:28:52,912 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:28:53,909 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1_tD2hcO4JWY6B-KfawZaxYoS-eLHWM9UUBqMYkikzgFsxcKcbzlsNCqeSJIrZFQG8nltgEq_Ap73QdDjmfP8cOZRqUssAAp9k-083vow&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:28:54,750 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1_tD2hcO4JWY6B-KfawZaxYoS-eLHWM9UUBqMYkikzgFsxcKcbzlsNCqeSJIrZFQG8nltgEq_Ap73QdDjmfP8cOZRqUssAAp9k-083vow&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:28:57,446 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1_tD2hcO4JWY6B-KfawZaxYoS-eLHWM9UUBqMYkikzgFsxcKcbzlsNCqeSJIrZFQG8nltgEq_Ap73QdDjmfP8cOZRqUssAAp9k-083vow&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:28:57,448 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 12:28:57,448 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:29:18,647 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:29:18,648 [WARNING] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Attempt 1 failed: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 12:29:20,930 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/vgoisfxg13r4 "HTTP/1.1 200 OK"
+2026-04-07 12:29:20,932 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 12:29:20,966 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 12:29:21,004 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 12:33:00,189 [INFO] Scanning and aggressively sanitizing filenames...
+2026-04-07 12:33:00,191 [INFO] 🧹 Sanitized filename: 'Master_Transcriptions.docx' -> 'MasterTranscriptions.docx'
+2026-04-07 12:33:00,192 [INFO] === Processing Directory: [main folder] (1 files) ===
+2026-04-07 12:33:00,194 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 12:33:01,007 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:33:02,197 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG19y4Lr2r-jhLECVxVQcIxHiHVlWyXdE70Pdhywa360C-FAUlqgCYgrmv0XlFnZ-QpbxIGHMz8cy6SdjRAe6adt8XYmHhcQjSOLJYTIDg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:03,054 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG19y4Lr2r-jhLECVxVQcIxHiHVlWyXdE70Pdhywa360C-FAUlqgCYgrmv0XlFnZ-QpbxIGHMz8cy6SdjRAe6adt8XYmHhcQjSOLJYTIDg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:05,819 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG19y4Lr2r-jhLECVxVQcIxHiHVlWyXdE70Pdhywa360C-FAUlqgCYgrmv0XlFnZ-QpbxIGHMz8cy6SdjRAe6adt8XYmHhcQjSOLJYTIDg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:05,823 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 12:33:05,824 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:33:12,439 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 503 Service Unavailable"
+2026-04-07 12:33:12,440 [WARNING] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Attempt 1 failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-04-07 12:33:24,609 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/s65564zv3ptn "HTTP/1.1 200 OK"
+2026-04-07 12:33:25,230 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 12:33:26,377 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3OfNn_vCKoagCuKDPCiHPE4z_WERA1o3U6u4H-jY6JZTvERWmX60j4wcM2fIb8uJdje3mg6JjfDSFc57kbwqdZz4Stp7ARP_z5x3U7hSw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:27,208 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3OfNn_vCKoagCuKDPCiHPE4z_WERA1o3U6u4H-jY6JZTvERWmX60j4wcM2fIb8uJdje3mg6JjfDSFc57kbwqdZz4Stp7ARP_z5x3U7hSw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:30,603 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG3OfNn_vCKoagCuKDPCiHPE4z_WERA1o3U6u4H-jY6JZTvERWmX60j4wcM2fIb8uJdje3mg6JjfDSFc57kbwqdZz4Stp7ARP_z5x3U7hSw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 12:33:30,604 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 12:33:30,605 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 12:33:51,019 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 12:33:51,022 [WARNING] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Attempt 2 failed: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 12:33:53,162 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/dyqbabdm2l4o "HTTP/1.1 200 OK"
+2026-04-07 12:33:53,164 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 12:33:53,205 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 12:33:53,239 [INFO] === Success! Master doc for [main folder] saved ===

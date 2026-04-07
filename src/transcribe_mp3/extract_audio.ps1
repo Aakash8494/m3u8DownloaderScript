@@ -1,8 +1,9 @@
 # SINGLE FOLDER
-Get-ChildItem -Filter *.mp4 | ForEach-Object { ffmpeg -i $_.FullName -q:a 0 -map a "$($_.BaseName).mp3" }
+Get-ChildItem -Path *.mp4, *.webm, *.mkv | ForEach-Object { ffmpeg -i $_.FullName -q:a 0 -map a "$($_.BaseName).mp3" }
+
 
 # RECURSIVE FOLDER + CHECK IF mp3 already present 
-Get-ChildItem -Filter *.mp4 -Recurse | ForEach-Object {
+Get-ChildItem -File -Recurse | Where-Object Extension -in '.mp4', '.webm', '.mkv' | ForEach-Object {
     $output = "$($_.DirectoryName)\$($_.BaseName).mp3"
     if (-not (Test-Path $output)) {
         ffmpeg -i $_.FullName -q:a 0 -map a $output
