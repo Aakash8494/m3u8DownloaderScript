@@ -8,6 +8,7 @@ from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
 import google.generativeai as genai
+import yt_dlp  # --- NEW IMPORT FOR PLAYLIST HANDLING ---
 
 # --- NEW DOCX IMPORTS ---
 from docx import Document
@@ -65,7 +66,6 @@ If it is already entirely in English, return it exactly as is.
 Only return the transformed title text. Do not add quotes, introductions, or extra punctuation.
 """
 
-# --- NEW HELPER FUNCTION FOR PAGE NUMBERS ---
 def add_page_number(run):
     """Injects Word XML field codes to auto-generate page numbers."""
     fldChar1 = OxmlElement('w:fldChar')
@@ -85,7 +85,6 @@ def add_page_number(run):
     run._r.append(instrText)
     run._r.append(fldChar2)
     run._r.append(fldChar3)
-# --------------------------------------------
 
 def get_clipboard_text():
     """Silently grabs whatever text is currently copied to the clipboard."""
@@ -116,17 +115,6 @@ def extract_video_id(value: str) -> str:
 def clean_filename(name: str) -> str:
     return re.sub(r'[\\/*?:"<>|]', "", name).strip()
 
-def get_title_and_channel(video_page_url: str):
-    oembed_url = "https://www.youtube.com/oembed"
-    params = {"url": video_page_url, "format": "json"}
-    try:
-        resp = requests.get(oembed_url, params=params, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        return data.get("title", "Untitled"), data.get("author_name", "UnknownChannel")
-    except:
-        return "Unknown_Video", "Unknown_Channel"
-
 def safe_add_heading(doc, text, level):
     """Safely adds a heading, falling back to bold text if the style is missing."""
     try:
@@ -136,147 +124,204 @@ def safe_add_heading(doc, text, level):
         run = p.add_run(text)
         run.bold = True
 
-def main():
-    video_input = get_clipboard_text().strip()
+def setup_document():
+    """Initializes and formats the main Word Document."""
+    doc = Document()
+    
+    # 1. Set Custom Margins
+    for section in doc.sections:
+        section.top_margin = Inches(0)
+        section.bottom_margin = Inches(0)
+        section.left_margin = Inches(0.17)
+        section.right_margin = Inches(4.0)
+        
+        # 2. Add Page Numbers to Footer Center
+        footer = section.footer
+        footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+        footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = footer_para.add_run()
+        add_page_number(run)
 
-    if "youtube.com" not in video_input and "youtu.be" not in video_input:
+    # 3. Shrink overall fonts
+    style_normal = doc.styles['Normal']
+    style_normal.font.size = Pt(8)
+    
+    try:
+        doc.styles['Heading 1'].font.size = Pt(14)
+        doc.styles['Heading 2'].font.size = Pt(12)
+        doc.styles['Heading 3'].font.size = Pt(10)
+    except KeyError:
+        pass
+        
+    return doc
+
+def append_to_doc(doc, formatted_text, title, channel, video_url):
+    """Parses Gemini output and appends it to the master document."""
+    safe_add_heading(doc, f"Source: {title}", level=1)
+    
+    meta_p = doc.add_paragraph()
+    meta_p.add_run(f"Channel: {channel}\nLink: {video_url}").italic = True
+    
+    lines = formatted_text.split('\n')
+    
+    for line in lines:
+        text = line.strip()
+        if not text:
+            continue 
+            
+        if text.startswith("### "):
+            safe_add_heading(doc, text[4:].strip(), level=3)
+        elif text.startswith("## "):
+            safe_add_heading(doc, text[3:].strip(), level=2)
+        elif text.startswith("# "):
+            safe_add_heading(doc, text[2:].strip(), level=1)
+        else:
+            para = doc.add_paragraph()
+            parts = text.split("**")
+            
+            for idx, part in enumerate(parts):
+                if part: 
+                    run = para.add_run(part)
+                    if idx % 2 != 0:
+                        run.bold = True
+    
+    # Add a page break after each video
+    doc.add_page_break()
+
+def get_playlist_info(playlist_url):
+    """Uses yt-dlp to safely extract all video IDs from a playlist."""
+    ydl_opts = {
+        'extract_flat': True,
+        'quiet': True,
+        'ignoreerrors': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(playlist_url, download=False)
+        if not info:
+            return "Unknown Playlist", []
+            
+        playlist_title = info.get('title', 'Unknown_Playlist')
+        
+        videos = []
+        # 'entries' contains the list of videos
+        if 'entries' in info:
+            for entry in info['entries']:
+                if entry and entry.get('id'):
+                    videos.append({
+                        'id': entry['id'],
+                        'title': entry.get('title', 'Unknown Title'),
+                        'channel': entry.get('uploader', 'Unknown Channel')
+                    })
+        return playlist_title, videos
+
+def process_video(video_id, raw_title, channel):
+    """Fetches and processes transcript for a single video."""
+    print(f"\n▶ Processing: {raw_title}")
+    
+    try:
+        title_response = model.generate_content([TITLE_PROMPT, raw_title])
+        title = title_response.text.strip()
+    except Exception:
+        title = raw_title
+
+    api = YouTubeTranscriptApi()
+    
+    try:
+        transcript_list = api.list_transcripts(video_id)
+        try:
+            transcript_obj = transcript_list.find_transcript(['hi', 'en'])
+        except:
+            transcript_obj = transcript_list.find_generated_transcript(['hi', 'en'])
+            
+        raw_data = transcript_obj.fetch()
+        text_lines = [entry['text'] for entry in raw_data]
+        
+    except Exception as transcript_err:
+        try:
+            transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
+            text_lines = [entry['text'] if isinstance(entry, dict) else entry.text for entry in transcript_obj]
+        except Exception as e:
+            print(f"  ❌ Failed to fetch transcript for {video_id}: {e}")
+            return None, title
+
+    raw_full_text = " ".join(text_lines)
+    
+    print("  🤖 Sending to Gemini...")
+    try:
+        response = model.generate_content([PROMPT, raw_full_text])
+        return response.text, title
+    except Exception as e:
+        print(f"  ❌ Gemini API error: {e}")
+        return None, title
+
+
+def main():
+    url_input = get_clipboard_text().strip()
+
+    if "youtube.com" not in url_input and "youtu.be" not in url_input:
         print("❌ Error: No YouTube URL found in your clipboard.")
-        print(f"What we found instead: '{video_input[:50]}...'")
         input("\nPlease copy a YouTube link and try again. Press Enter to exit...")
         return
 
-    print(f"📋 Read from clipboard: {video_input}\n")
+    print(f"📋 Read from clipboard: {url_input}\n")
 
-    try:
-        video_id = extract_video_id(video_input)
-        page_url = f"https://www.youtube.com/watch?v={video_id}"
+    # Check if the URL is a playlist or a single video
+    is_playlist = "list=" in url_input
+    
+    videos_to_process = []
+    doc_title = "Single_Video"
+    
+    if is_playlist:
+        print("📂 Playlist detected! Extracting videos... (this might take a few seconds)")
+        playlist_title, videos = get_playlist_info(url_input)
+        print(f"Found {len(videos)} videos in playlist: {playlist_title}")
+        videos_to_process = videos
+        doc_title = clean_filename(playlist_title)
+    else:
+        print("🎥 Single video detected.")
+        video_id = extract_video_id(url_input)
+        videos_to_process = [{'id': video_id, 'title': 'Single Video', 'channel': 'Unknown'}]
 
-        print("Fetching video metadata...")
-        raw_title, channel = get_title_and_channel(page_url)
-        print(f"Raw Title Found: {raw_title} ({channel})")
+    if not videos_to_process:
+        print("❌ No valid videos found.")
+        return
 
-        print("Checking title for Hindi script...")
-        try:
-            title_response = model.generate_content([TITLE_PROMPT, raw_title])
-            title = title_response.text.strip()
-            if title != raw_title:
-                print(f"Transliterated Title: {title}")
-        except Exception as e:
-            print(f"Title translation failed (using raw): {e}")
-            title = raw_title
+    # Setup the Master Document
+    doc = setup_document()
+    
+    base_dir = "YouTube_Transcripts"
+    os.makedirs(base_dir, exist_ok=True)
 
-        clean_channel = clean_filename(channel)
-        clean_title = clean_filename(title)
-
-        base_dir = "YouTube_Transcripts"
-        channel_dir = os.path.join(base_dir, clean_channel)
-        os.makedirs(channel_dir, exist_ok=True)
-
-        txt_file_path = os.path.join(channel_dir, f"{clean_title}.txt")
-        doc_file_path = os.path.join(channel_dir, f"{clean_title}.docx")
-
-        print("Downloading raw transcript...")
-        api = YouTubeTranscriptApi()
+    success_count = 0
+    
+    for idx, video in enumerate(videos_to_process):
+        video_id = video['id']
+        raw_title = video['title']
+        channel = video['channel']
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
         
-        try:
-            transcript_list = api.list_transcripts(video_id)
-            try:
-                transcript_obj = transcript_list.find_transcript(['hi', 'en'])
-            except:
-                transcript_obj = transcript_list.find_generated_transcript(['hi', 'en'])
-                
-            raw_data = transcript_obj.fetch()
-            text_lines = [entry['text'] for entry in raw_data]
+        # Process the video via Gemini
+        formatted_text, final_title = process_video(video_id, raw_title, channel)
+        
+        if formatted_text:
+            append_to_doc(doc, formatted_text, final_title, channel, video_url)
+            success_count += 1
             
-        except Exception as transcript_err:
-             print(f"Transcript fetch logic failed, trying fallback: {transcript_err}")
-             transcript_obj = api.fetch(video_id, languages=['hi', 'en'])
-             text_lines = [entry['text'] if isinstance(entry, dict) else entry.text for entry in transcript_obj]
+        # Add a short delay to avoid hitting Gemini's rate limits when looping fast
+        if idx < len(videos_to_process) - 1:
+            time.sleep(2)
 
-        video_link = f"https://www.youtube.com/watch?v={video_id}"
-        header = f"Title:   {title}\nChannel: {channel}\nLink:    {video_link}\n{'-' * 50}\n\n"
-        raw_full_text = " ".join(text_lines)
-        
-        with open(txt_file_path, "w", encoding="utf-8") as f:
-            f.write(header + raw_full_text)
-        print(f"✅ Saved raw backup: {txt_file_path}")
-
-        print("🤖 Sending raw text to Gemini for formatting and translation...")
-        response = model.generate_content([PROMPT, raw_full_text])
-        formatted_text = response.text
-
-        print("📝 Creating beautifully formatted Word Document...")
-        doc = Document()
-        
-        # =========================================================
-        # --- NEW CUSTOM DOCUMENT FORMATTING ---
-        # =========================================================
-        
-        # 1. Set Custom Margins (Top: 0, Bottom: 0, Left: 0.17", Right: 4")
-        for section in doc.sections:
-            section.top_margin = Inches(0)
-            section.bottom_margin = Inches(0)
-            section.left_margin = Inches(0.17)
-            section.right_margin = Inches(4.0)
+    if success_count > 0:
+        # Save the master document
+        if not is_playlist:
+            doc_title = clean_filename(final_title)
             
-            # 2. Add Page Numbers to Footer Center
-            footer = section.footer
-            footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
-            footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = footer_para.add_run()
-            add_page_number(run)
-
-        # 3. Shrink overall fonts 3 times
-        # Default font is 11pt, 3 shrinks = 8pt
-        style_normal = doc.styles['Normal']
-        style_normal.font.size = Pt(8)
-        
-        # Also proportionally shrink the Headings so they don't look giant 
-        # compared to the 8pt body text.
-        try:
-            doc.styles['Heading 1'].font.size = Pt(14)
-            doc.styles['Heading 2'].font.size = Pt(12)
-            doc.styles['Heading 3'].font.size = Pt(10)
-        except KeyError:
-            pass
-            
-        # =========================================================
-
-        # Add title
-        safe_add_heading(doc, f"Source: {title}", level=1)
-        
-        lines = formatted_text.split('\n')
-        
-        for line in lines:
-            text = line.strip()
-            if not text:
-                continue 
-                
-            if text.startswith("### "):
-                safe_add_heading(doc, text[4:].strip(), level=3)
-            elif text.startswith("## "):
-                safe_add_heading(doc, text[3:].strip(), level=2)
-            elif text.startswith("# "):
-                safe_add_heading(doc, text[2:].strip(), level=1)
-            else:
-                para = doc.add_paragraph()
-                parts = text.split("**")
-                
-                for idx, part in enumerate(parts):
-                    if part: 
-                        run = para.add_run(part)
-                        if idx % 2 != 0:
-                            run.bold = True
-
+        doc_file_path = os.path.join(base_dir, f"{doc_title}_Master.docx")
         doc.save(doc_file_path)
-        print(f"✅ Saved formatted Word doc: {doc_file_path}")
-
-    except NoTranscriptFound:
-        print("❌ Error: No transcript found in Hindi or English.")
-    except TranscriptsDisabled:
-        print("❌ Error: Transcripts are disabled for this video.")
-    except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"\n✅ SUCCESS! Saved {success_count} formatted transcripts to Master Word doc:")
+        print(f"📁 {doc_file_path}")
+    else:
+        print("\n❌ Failed to process any transcripts.")
 
     input("\nPress Enter to close this window...")
 
