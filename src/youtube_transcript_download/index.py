@@ -1,7 +1,9 @@
+import os
 import re
 from urllib.parse import urlparse, parse_qs
 import yt_dlp
 from youtube_transcript_api import YouTubeTranscriptApi
+from docx import Document
 
 def extract_video_id(url: str) -> str:
     """Extracts the YouTube Video ID from a standard, shorts, or embed URL."""
@@ -19,12 +21,22 @@ def extract_video_id(url: str) -> str:
         return parsed.path.lstrip("/")
     return url
 
+def get_single_video_info(url: str):
+    """Uses yt-dlp to get the title and channel of a single video."""
+    ydl_opts = {'quiet': True, 'extract_flat': True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return {
+            'id': info.get('id', extract_video_id(url)),
+            'title': info.get('title', 'Unknown Title'),
+            'channel': info.get('uploader', info.get('channel', 'Unknown Channel'))
+        }
+
 def get_playlist_videos(playlist_url: str):
     """
     Uses yt-dlp to extract all video IDs, titles, and channels from a playlist.
     Returns a tuple: (playlist_title, list_of_video_dicts)
     """
-    # Clean the URL to ensure yt-dlp focuses purely on the playlist
     parsed = urlparse(playlist_url)
     qs = parse_qs(parsed.query)
     if 'list' in qs:
@@ -62,20 +74,16 @@ def fetch_transcript(video_id: str, languages=['hi', 'en']):
     """
     api = YouTubeTranscriptApi()
     try:
-        # Try to find a specific transcript language
         transcript_list = api.list_transcripts(video_id)
         try:
-            # First look for manually created transcripts
             transcript_obj = transcript_list.find_transcript(languages)
         except:
-            # Fallback to auto-generated transcripts
             transcript_obj = transcript_list.find_generated_transcript(languages)
             
         raw_data = transcript_obj.fetch()
         text_lines = [entry['text'] for entry in raw_data]
         
     except Exception as e:
-        # Final fallback method
         try:
             transcript_obj = api.fetch(video_id, languages=languages)
             text_lines = [entry['text'] if isinstance(entry, dict) else entry.text for entry in transcript_obj]
@@ -83,8 +91,41 @@ def fetch_transcript(video_id: str, languages=['hi', 'en']):
             print(f"❌ Failed to fetch transcript for {video_id}: {fallback_err}")
             return None
 
-    # Join the individual text blocks into one continuous string
     return " ".join(text_lines)
+
+def clean_name(name: str) -> str:
+    """Removes invalid characters from folder and file names."""
+    return re.sub(r'[\\/*?:"<>|]', "", name).strip()
+
+def save_to_word_doc(content: str, channel: str, title: str):
+    """
+    Creates a folder for the channel and saves the transcript as a Word document.
+    """
+    safe_channel = clean_name(channel) if channel else "Unknown Channel"
+    safe_title = clean_name(title) if title else "Unknown Video"
+    
+    # Create the channel directory in the current working folder
+    channel_dir = os.path.join(os.getcwd(), safe_channel)
+    os.makedirs(channel_dir, exist_ok=True)
+    
+    # Define the file path (Channel Name/Video Name.docx)
+    file_path = os.path.join(channel_dir, f"{safe_title}.docx")
+    
+    # Create the Word document
+    doc = Document()
+    doc.add_heading(title, level=1)
+    
+    # Add metadata
+    meta_para = doc.add_paragraph()
+    meta_para.add_run(f"Channel: {channel}").italic = True
+    
+    # Add the transcript content
+    doc.add_paragraph(content)
+    
+    # Save the document
+    doc.save(file_path)
+        
+    return file_path
 
 # ==========================================
 # Example Usage
@@ -95,22 +136,27 @@ if __name__ == "__main__":
     is_playlist = "list=" in url
     
     if is_playlist:
-        print("📂 Fetching playlist data...")
+        print("\n📂 Fetching playlist data...")
         playlist_title, videos = get_playlist_videos(url)
         print(f"Found {len(videos)} videos in '{playlist_title}'.\n")
         
-        for vid in videos[:3]: # Limiting to first 3 for the example
+        # NOTE: Removed the [:3] limit. This will now process the entire playlist.
+        for vid in videos: 
             print(f"▶ Downloading transcript for: {vid['title']}")
             transcript = fetch_transcript(vid['id'])
+            
             if transcript:
-                print(f"Preview: {transcript[:100]}...\n")
+                saved_path = save_to_word_doc(transcript, vid['channel'], vid['title'])
+                print(f"✅ Saved to: {saved_path}\n")
                 
     else:
-        print("🎥 Fetching single video data...")
-        video_id = extract_video_id(url)
-        print(f"Video ID: {video_id}")
+        print("\n🎥 Fetching single video data...")
+        vid_info = get_single_video_info(url)
+        print(f"Video Title: {vid_info['title']}")
+        print(f"Channel: {vid_info['channel']}")
         
-        transcript = fetch_transcript(video_id)
+        transcript = fetch_transcript(vid_info['id'])
         if transcript:
-            print("\nTranscript successfully downloaded!")
-            print(f"Preview: {transcript[:200]}...")
+            saved_path = save_to_word_doc(transcript, vid_info['channel'], vid_info['title'])
+            print(f"\n✅ Transcript successfully downloaded!")
+            print(f"📁 Saved to: {saved_path}")
