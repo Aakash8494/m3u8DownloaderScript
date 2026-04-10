@@ -5,32 +5,26 @@ import traceback
 from dotenv import load_dotenv
 from docx import Document
 
-# --- NEW GEMINI SDK ---
-from google import genai
-# ----------------------
+# --- OPENAI SDK ---
+from openai import OpenAI
+# ------------------
 
 # 1. Force Python to use the exact folder where this script is located
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
-# Load environment variables from the shared .env file
+# Load environment variables
 load_dotenv()
 
 # Safely retrieve API Key
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    print("❌ Error: GEMINI_API_KEY not found. Please ensure your .env file is in this folder.")
+    print("❌ Error: OPENAI_API_KEY not found. Please ensure your .env file is in this folder.")
     input("\nPress Enter to exit...")
     exit(1)
 
-# Initialize the NEW Gemini Client
-client = genai.Client(api_key=api_key)
-
-# ==========================================
-# SETTINGS
-# ==========================================
-# Options: 'gemini-2.5-pro' (smarter) OR 'gemini-2.5-flash' (faster/cheaper)
-AI_MODEL = 'gemini-2.5-pro'
+# Initialize OpenAI client
+client = OpenAI(api_key=api_key)
 
 # ==========================================
 # PROMPTS
@@ -66,7 +60,6 @@ Only return the transformed title text. Do not add quotes, introductions, or ext
 # HELPER FUNCTIONS
 # ==========================================
 def read_docx(file_path: str) -> str:
-    """Reads all text from a given Word document."""
     doc = Document(file_path)
     full_text = []
     for para in doc.paragraphs:
@@ -75,7 +68,6 @@ def read_docx(file_path: str) -> str:
     return " ".join(full_text)
 
 def safe_add_heading(doc, text, level):
-    """Adds a heading to the Word doc, falling back to bold text if styles are missing."""
     try:
         doc.add_heading(text, level=level)
     except KeyError:
@@ -84,21 +76,18 @@ def safe_add_heading(doc, text, level):
         run.bold = True
 
 def create_formatted_doc(formatted_text: str, original_filename: str, output_path: str):
-    """Parses markdown text and saves it as a styled Word document."""
     doc = Document()
-    
-    # Add a main title
+
     safe_add_heading(doc, f"Formatted Transcript: {original_filename}", level=1)
-    doc.add_paragraph() # Spacing
-    
+    doc.add_paragraph()
+
     lines = formatted_text.split('\n')
-    
+
     for line in lines:
         text = line.strip()
         if not text:
-            continue 
-            
-        # Handle markdown headings
+            continue
+
         if text.startswith("### "):
             safe_add_heading(doc, text[4:].strip(), level=3)
         elif text.startswith("## "):
@@ -106,47 +95,45 @@ def create_formatted_doc(formatted_text: str, original_filename: str, output_pat
         elif text.startswith("# "):
             safe_add_heading(doc, text[2:].strip(), level=1)
         else:
-            # Handle standard paragraphs and bold text logic
             para = doc.add_paragraph()
             parts = text.split("**")
             for idx, part in enumerate(parts):
-                if part: 
+                if part:
                     run = para.add_run(part)
-                    # Every odd index in the split list was wrapped in **
                     if idx % 2 != 0:
                         run.bold = True
-                        
+
     doc.save(output_path)
 
 def generate_with_retry(prompt_text, text_content, max_retries=5):
-    """Wraps the Gemini API call with a retry loop for 503/429 errors."""
-    retry_delay = 5 # Start with a 5 second delay
-    
+    retry_delay = 5
+
     for attempt in range(max_retries):
         try:
-            response = client.models.generate_content(
-                model=AI_MODEL,
-                contents=f"{prompt_text}\n\n{text_content}"
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {"role": "system", "content": prompt_text},
+                    {"role": "user", "content": text_content}
+                ],
+                temperature=0.2,
+                max_tokens=4000
             )
-            return response.text
-            
+
+            return response.choices[0].message.content
+
         except Exception as e:
             error_msg = str(e)
-            
-            # Print the EXACT error from Gemini so you aren't guessing
-            print(f"\n🔍 DEBUG - Gemini API Error: {error_msg}\n")
-            
-            # If the server is busy (503) or we hit a rate limit (429)
-            if "503" in error_msg or "429" in error_msg or "UNAVAILABLE" in error_msg or "Quota" in error_msg:
+
+            if "429" in error_msg or "503" in error_msg:
                 if attempt < max_retries - 1:
-                    print(f"  ⚠️ Server busy (Attempt {attempt + 1}/{max_retries}). Retrying in {retry_delay} seconds...")
+                    print(f"⚠️ Server busy (Attempt {attempt + 1}/{max_retries}). Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
-                    retry_delay *= 2 # Double the wait time for the next attempt
+                    retry_delay *= 2
                     continue
-            
-            # If it's a different error or we ran out of retries, throw the error
+
             raise e
-            
+
     return None
 
 # ==========================================
@@ -154,27 +141,24 @@ def generate_with_retry(prompt_text, text_content, max_retries=5):
 # ==========================================
 def main():
     print("================================================")
-    print(f"  Local Document Transcriber & Formatter ({AI_MODEL})")
+    print("  Local Document Transcriber & Formatter (ChatGPT)")
     print("================================================\n")
-    
+
     file_path = input("📄 Enter the full path to your .docx file:\n> ").strip()
-    
-    # Remove quotes if the user drag-and-dropped the file into the terminal
     file_path = file_path.strip('"').strip("'")
-    
+
     if not os.path.exists(file_path):
-        print("\n❌ Error: File not found. Please check the path and try again.")
+        print("\n❌ Error: File not found.")
         return
-        
+
     if not file_path.lower().endswith('.docx'):
         print("\n❌ Error: Please provide a .docx file.")
         return
 
-    # Extract base name for saving the new file
     dir_name = os.path.dirname(file_path)
     base_name = os.path.basename(file_path)
     name_without_ext = os.path.splitext(base_name)[0]
-    
+
     print(f"\n📖 Reading document: {base_name}...")
     try:
         raw_text = read_docx(file_path)
@@ -186,7 +170,6 @@ def main():
         print(f"❌ Failed to read document: {e}")
         return
 
-    # Clean the original filename using TITLE_PROMPT
     try:
         print("🤖 Cleaning title...")
         clean_title = generate_with_retry(TITLE_PROMPT, f"Title to clean: {name_without_ext}", max_retries=3)
@@ -199,36 +182,36 @@ def main():
     output_filename = f"{clean_title}_Formatted.docx"
     output_path = os.path.join(dir_name, output_filename)
 
-    print(f"\n🤖 Sending text to Gemini ({AI_MODEL}) for formatting... (This may take a moment for large files)")
+    print("\n🤖 Sending text to ChatGPT for formatting...")
     try:
         formatted_text = generate_with_retry(PROMPT, f"Transcript: {raw_text}", max_retries=5)
-        
+
         if not formatted_text:
-            print("❌ Gemini returned an empty response.")
+            print("❌ Empty response from ChatGPT.")
             return
-            
+
     except Exception as e:
-        print(f"\n❌ Script failed to complete due to API error.")
+        print(f"\n❌ API error: {e}")
         return
 
     print("\n📝 Generating new Word document...")
     try:
         create_formatted_doc(formatted_text, clean_title, output_path)
-        print("✅ SUCCESS! Document formatted and saved:")
+        print("✅ SUCCESS! Document saved:")
         print(f"📁 {output_path}")
     except Exception as e:
-        print(f"❌ Failed to save the new document: {e}")
+        print(f"❌ Failed to save document: {e}")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n🛑 Process cancelled by user.")
-    except Exception as e:
+        print("\n\n🛑 Cancelled by user.")
+    except Exception:
         print("\n" + "="*50)
-        print("❌ A FATAL ERROR OCCURRED:")
+        print("❌ FATAL ERROR:")
         print("="*50)
         traceback.print_exc()
         print("="*50)
-        
+
     input("\nPress Enter to exit...")
