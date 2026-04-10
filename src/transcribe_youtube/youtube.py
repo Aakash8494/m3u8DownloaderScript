@@ -142,7 +142,7 @@ def setup_document():
         
     return doc
 
-def append_to_doc(doc, formatted_text, title, channel, video_url):
+def populate_doc(doc, formatted_text, title, channel, video_url):
     safe_add_heading(doc, f"Source: {title}", level=1)
     meta_p = doc.add_paragraph()
     meta_p.add_run(f"Channel: {channel}\nLink: {video_url}").italic = True
@@ -167,13 +167,9 @@ def append_to_doc(doc, formatted_text, title, channel, video_url):
                     run = para.add_run(part)
                     if idx % 2 != 0:
                         run.bold = True
-    doc.add_page_break()
 
 def get_playlist_info(playlist_url):
     """Clean the URL and extract playlist info correctly."""
-    
-    # FIX: If the URL contains both a video (v=) and a list (list=), strip it down
-    # to JUST the playlist URL so yt-dlp doesn't get confused and skip the playlist.
     parsed = urlparse(playlist_url)
     qs = parse_qs(parsed.query)
     if 'list' in qs:
@@ -194,7 +190,6 @@ def get_playlist_info(playlist_url):
         videos = []
         if 'entries' in info:
             for entry in info['entries']:
-                # Ensure the entry is valid before appending
                 if entry and isinstance(entry, dict) and entry.get('id'):
                     videos.append({
                         'id': entry['id'],
@@ -258,14 +253,12 @@ def main():
 
     is_playlist = "list=" in url_input
     videos_to_process = []
-    doc_title = "Single_Video"
     
     if is_playlist:
         print("📂 Playlist detected! Extracting videos... (this might take a few seconds)")
         playlist_title, videos = get_playlist_info(url_input)
         print(f"Found {len(videos)} videos in playlist: {playlist_title}")
         videos_to_process = videos
-        doc_title = clean_filename(playlist_title)
     else:
         print("🎥 Single video detected.")
         video_id = extract_video_id(url_input)
@@ -275,7 +268,6 @@ def main():
         print("❌ No valid videos found. The playlist might be empty or private.")
         return
 
-    doc = setup_document()
     base_dir = "YouTube_Transcripts"
     os.makedirs(base_dir, exist_ok=True)
     success_count = 0
@@ -289,20 +281,27 @@ def main():
         formatted_text, final_title = process_video(video_id, raw_title, channel)
         
         if formatted_text:
-            append_to_doc(doc, formatted_text, final_title, channel, video_url)
+            # Create a brand new document for this specific video
+            doc = setup_document()
+            populate_doc(doc, formatted_text, final_title, channel, video_url)
+            
+            # Generate a safe filename based on the video title
+            doc_title = clean_filename(final_title)
+            if not doc_title:
+                doc_title = f"Video_{video_id}"
+                
+            doc_file_path = os.path.join(base_dir, f"{doc_title}.docx")
+            doc.save(doc_file_path)
+            
+            print(f"  ✅ Saved individual doc: {doc_file_path}")
             success_count += 1
             
         if idx < len(videos_to_process) - 1:
             time.sleep(2)
 
     if success_count > 0:
-        if not is_playlist:
-            doc_title = clean_filename(final_title)
-            
-        doc_file_path = os.path.join(base_dir, f"{doc_title}_Master.docx")
-        doc.save(doc_file_path)
-        print(f"\n✅ SUCCESS! Saved {success_count} formatted transcripts to Master Word doc:")
-        print(f"📁 {doc_file_path}")
+        print(f"\n✅ SUCCESS! Saved {success_count} individual formatted transcript documents to:")
+        print(f"📁 {os.path.abspath(base_dir)}")
     else:
         print("\n❌ Failed to process any transcripts.")
 
