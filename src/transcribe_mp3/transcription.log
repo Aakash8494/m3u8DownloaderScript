@@ -5526,3 +5526,144 @@ Please retry in 59.735401915s. [links {
 2026-04-07 12:33:53,164 [INFO] Building/Updating continuous Master Document for [main folder]...
 2026-04-07 12:33:53,205 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
 2026-04-07 12:33:53,239 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 13:09:17,300 [INFO] Scanning and aggressively sanitizing filenames...
+2026-04-07 13:09:17,302 [INFO] 🧹 Sanitized filename: 'Aryaman sansanwal - Video by aryamansunsunwal.mp3' -> 'Aryaman sansanwal Video by aryamansunsunwal.mp3'
+2026-04-07 13:09:17,303 [INFO] 🧹 Sanitized filename: 'degree substantial  - DEEPak Daiya's MOST INSPIRING VIDEO EVER!.mp3' -> 'degree substantial DEEPak Daiyas MOST INSPIRING VIDEO EVER.mp3'
+2026-04-07 13:09:17,305 [INFO] 🧹 Sanitized filename: 'Dr Kartik Sahni ｜ Gastro Onco  - WFH.. still Liver Damage？ No alcohol! #liverhealth #healthawareness #teachingscalpel #guthealthindia.mp3' -> 'Dr Kartik Sahni Gastro Onco WFH still Liver Damage No alcohol liverhealth healthawareness teachingscalpel guthealthindia.mp3'
+2026-04-07 13:09:17,306 [INFO] 🧹 Sanitized filename: 'GrowSmart Africa Foundation - If you want to healthy, eat when you are hungry...mp3' -> 'GrowSmart Africa Foundation If you want to healthy eat when you are hungry.mp3'
+2026-04-07 13:09:17,308 [INFO] 🧹 Sanitized filename: 'Manan Khatri - The Truth ‼️.mp3' -> 'Manan Khatri The Truth.mp3'
+2026-04-07 13:09:17,309 [INFO] 🧹 Sanitized filename: 'Neville Goddard - Once You Trust God Like This, Problems Disappear - Neville Goddard.mp3' -> 'Neville Goddard Once You Trust God Like This Problems Disappear Neville Goddard.mp3'
+2026-04-07 13:09:17,310 [INFO] 🧹 Sanitized filename: 'NevilleGoddard - NEVILLE GODDARD： ＂ACT AS IF YOU’RE THE LUCKIEST PERSON ALIVE – THE SECRET TO MANIFESTING ANYTHING＂.mp3' -> 'NevilleGoddard NEVILLE GODDARD ACT AS IF YOURE THE LUCKIEST PERSON ALIVE THE SECRET TO MANIFESTING ANYTHING.mp3'
+2026-04-07 13:09:17,312 [INFO] 🧹 Sanitized filename: 'null - Value what you already have — your education, food, water, home, friends, work, and family.  These aren’t just things; they’re blessings that many dream of. ｜ Priy.mp3' -> 'null Value what you already have your education food water home friends work and family These arent just things theyre blessings that many dream of Priy.mp3'
+2026-04-07 13:09:17,313 [INFO] 🧹 Sanitized filename: 'Shwetabh Gangwar - Sabse Bhayanak Motivation ｜ Shwetabh Gangwar #shorts.mp3' -> 'Shwetabh Gangwar Sabse Bhayanak Motivation Shwetabh Gangwar shorts.mp3'
+2026-04-07 13:09:17,314 [INFO] 🧹 Sanitized filename: 'YOUVA-GO - motivation illusion of success ｜ dopamine scam 👿.mp3' -> 'YOUVAGO motivation illusion of success dopamine scam.mp3'
+2026-04-07 13:09:17,315 [INFO] 🧹 Sanitized filename: 'Zero Dopamine World - How To Turn Pain Into Power.mp3' -> 'Zero Dopamine World How To Turn Pain Into Power.mp3'
+2026-04-07 13:09:17,315 [INFO] === Processing Directory: [main folder] (11 files) ===
+2026-04-07 13:09:17,365 [INFO] [Aryaman sansanwal Video by aryamansunsunwal.mp3] No doc found. Starting API processing...
+2026-04-07 13:09:18,334 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:09:21,272 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG05XEI-gp-kJZ0pW8Tapmi9glIg_4Q7cTu4XW9ipuZWWAx9uWf09hmipkQAO3EWqorkeeEhZP2gHuM3F19CbF70g8OT1LhXxyIuu7Tg68E&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:09:21,273 [INFO] [Aryaman sansanwal Video by aryamansunsunwal.mp3] Upload complete. Generating text...
+2026-04-07 13:09:21,274 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:09:50,615 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:09:52,859 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/we5a9nq9c8ge "HTTP/1.1 200 OK"
+2026-04-07 13:09:52,937 [INFO] [Aryaman sansanwal Video by aryamansunsunwal.mp3] Saved new individual document.
+2026-04-07 13:09:52,937 [INFO] [Dr Kartik Sahni Gastro Onco WFH still Liver Damage No alcohol liverhealth healthawareness teachingscalpel guthealthindia.mp3] No doc found. Starting API processing...
+2026-04-07 13:09:53,708 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:09:56,349 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0UkbqTDTx_NW0WCvk7loa3xO6HcpBDAKZx25W6mSr5_ynqA2M7rd5lO17VR3HiBFBA06rO0b2gOjqaascDzq23Taoo0D_7QZAAhD3c8A&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:09:56,350 [INFO] [Dr Kartik Sahni Gastro Onco WFH still Liver Damage No alcohol liverhealth healthawareness teachingscalpel guthealthindia.mp3] Upload complete. Generating text...
+2026-04-07 13:09:56,350 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:10:07,031 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:10:09,245 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/pevcphqnthg5 "HTTP/1.1 200 OK"
+2026-04-07 13:10:09,354 [INFO] [Dr Kartik Sahni Gastro Onco WFH still Liver Damage No alcohol liverhealth healthawareness teachingscalpel guthealthindia.mp3] Saved new individual document.
+2026-04-07 13:10:09,355 [INFO] [GrowSmart Africa Foundation If you want to healthy eat when you are hungry.mp3] No doc found. Starting API processing...
+2026-04-07 13:10:10,102 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:10:12,699 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG16HkC-N4FVYFQCftQPsOqVkomL3VnNQmWMxcCpVLKrPRVwrHByiek4D9dOqnc4Q7bxNBqx6ykzrx7cNk1jUiUdXQ07WNvSGxXdgZoYOSw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:12,701 [INFO] [GrowSmart Africa Foundation If you want to healthy eat when you are hungry.mp3] Upload complete. Generating text...
+2026-04-07 13:10:12,702 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:10:29,782 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:10:32,865 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/e3pdq7k98k4f "HTTP/1.1 200 OK"
+2026-04-07 13:10:32,926 [INFO] [GrowSmart Africa Foundation If you want to healthy eat when you are hungry.mp3] Saved new individual document.
+2026-04-07 13:10:32,926 [INFO] [Manan Khatri The Truth.mp3] No doc found. Starting API processing...
+2026-04-07 13:10:33,799 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:10:36,492 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG18dwCQWRH-2HCTs5BMmwZhHvPYfvIBi7I9y24Q7l8BuJt17AHfaShc4iVIbSDHFApqLiW9hRmLzVf62HzDDmTCmd2IU9YjqqVF9E9ayiY&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:36,493 [INFO] [Manan Khatri The Truth.mp3] Upload complete. Generating text...
+2026-04-07 13:10:36,493 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:10:47,711 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:10:49,582 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/osyrj0943tah "HTTP/1.1 200 OK"
+2026-04-07 13:10:49,631 [INFO] [Manan Khatri The Truth.mp3] Saved new individual document.
+2026-04-07 13:10:49,632 [INFO] [Neville Goddard Once You Trust God Like This Problems Disappear Neville Goddard.mp3] No doc found. Starting API processing...
+2026-04-07 13:10:50,344 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:10:51,379 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG126XCFolYZwukMeawb9ViVPsBi4uYv6_-ZFxac7YRBraj4t14sHb0eEoGDICBQTd50opEvn7HId8P0lgc5yQQ-GCU0WDDjxJQplBbfhFw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:52,599 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG126XCFolYZwukMeawb9ViVPsBi4uYv6_-ZFxac7YRBraj4t14sHb0eEoGDICBQTd50opEvn7HId8P0lgc5yQQ-GCU0WDDjxJQplBbfhFw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:53,837 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG126XCFolYZwukMeawb9ViVPsBi4uYv6_-ZFxac7YRBraj4t14sHb0eEoGDICBQTd50opEvn7HId8P0lgc5yQQ-GCU0WDDjxJQplBbfhFw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:56,810 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG126XCFolYZwukMeawb9ViVPsBi4uYv6_-ZFxac7YRBraj4t14sHb0eEoGDICBQTd50opEvn7HId8P0lgc5yQQ-GCU0WDDjxJQplBbfhFw&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:10:56,811 [INFO] [Neville Goddard Once You Trust God Like This Problems Disappear Neville Goddard.mp3] Upload complete. Generating text...
+2026-04-07 13:10:56,811 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:12:15,492 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:12:17,525 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/l6qp34vhj2q2 "HTTP/1.1 200 OK"
+2026-04-07 13:12:17,776 [INFO] [Neville Goddard Once You Trust God Like This Problems Disappear Neville Goddard.mp3] Saved new individual document.
+2026-04-07 13:12:17,776 [INFO] [NevilleGoddard NEVILLE GODDARD ACT AS IF YOURE THE LUCKIEST PERSON ALIVE THE SECRET TO MANIFESTING ANYTHING.mp3] No doc found. Starting API processing...
+2026-04-07 13:12:18,457 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:12:19,412 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:20,395 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:21,530 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:22,499 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:23,540 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:24,685 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:25,626 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:26,763 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:27,954 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:29,147 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:30,085 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:31,102 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:32,076 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:33,040 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:33,953 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:34,959 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:35,940 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:37,108 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:38,306 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:40,157 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:42,735 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QtnCmvtkZkorgiJv06QtWazpoh5GxCDa3hn36Qk7co0N_VgUSfLwJ9VzkKjzi_3FRNS4WJvOXfjDh2BTVqU59zOEnlz6JyAEaWdJY2_U&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:12:42,736 [INFO] [NevilleGoddard NEVILLE GODDARD ACT AS IF YOURE THE LUCKIEST PERSON ALIVE THE SECRET TO MANIFESTING ANYTHING.mp3] Upload complete. Generating text...
+2026-04-07 13:12:42,736 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:20:19,857 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:20:22,120 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/15o951wr78gu "HTTP/1.1 200 OK"
+2026-04-07 13:20:22,305 [INFO] [NevilleGoddard NEVILLE GODDARD ACT AS IF YOURE THE LUCKIEST PERSON ALIVE THE SECRET TO MANIFESTING ANYTHING.mp3] Saved new individual document.
+2026-04-07 13:20:22,306 [INFO] [Shwetabh Gangwar Sabse Bhayanak Motivation Shwetabh Gangwar shorts.mp3] No doc found. Starting API processing...
+2026-04-07 13:20:22,974 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:20:25,493 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2-ckoiT8ZcCVjiOj1I1v8WrTh3WHB3o0V3t9haOJ6mUtg2BhiKy1YMfDXWOJeQLZ0Ke2KkYnOQQl2dGMkg-6DF0Q566jzm2n4QH-H_p3I&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:20:25,494 [INFO] [Shwetabh Gangwar Sabse Bhayanak Motivation Shwetabh Gangwar shorts.mp3] Upload complete. Generating text...
+2026-04-07 13:20:25,495 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:20:40,911 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:20:43,093 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/gnqud0u98qxh "HTTP/1.1 200 OK"
+2026-04-07 13:20:43,165 [INFO] [Shwetabh Gangwar Sabse Bhayanak Motivation Shwetabh Gangwar shorts.mp3] Saved new individual document.
+2026-04-07 13:20:43,165 [INFO] [YOUVAGO motivation illusion of success dopamine scam.mp3] No doc found. Starting API processing...
+2026-04-07 13:20:44,044 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:20:46,653 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2lednj0ZDpL0VlGVn5V3jfVG8IvQ8ojJB6P3dMWQP61iN8GTBPJ98BcmfCea_L-cJ8s543B-EpGkg9jKUaEpbmuIaBeTaQbEoBBGZRrg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:20:46,654 [INFO] [YOUVAGO motivation illusion of success dopamine scam.mp3] Upload complete. Generating text...
+2026-04-07 13:20:46,654 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:20:55,762 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:20:57,894 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/c7a4z97oqryz "HTTP/1.1 200 OK"
+2026-04-07 13:20:57,952 [INFO] [YOUVAGO motivation illusion of success dopamine scam.mp3] Saved new individual document.
+2026-04-07 13:20:57,953 [INFO] [Zero Dopamine World How To Turn Pain Into Power.mp3] No doc found. Starting API processing...
+2026-04-07 13:20:58,834 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:21:01,546 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2DvZg-NjNiyGZ60jzaDs7T5UOGT4pfY8-fkmurIbJiKh0GPUw0qRCEV97hU8ROJgVroxWao9tV_SZHGkYS44Jiu5QV878dBJZj69oeiwc&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:21:01,547 [INFO] [Zero Dopamine World How To Turn Pain Into Power.mp3] Upload complete. Generating text...
+2026-04-07 13:21:01,547 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:21:15,169 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:21:17,418 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/qq9yu1w9cv4v "HTTP/1.1 200 OK"
+2026-04-07 13:21:17,477 [INFO] [Zero Dopamine World How To Turn Pain Into Power.mp3] Saved new individual document.
+2026-04-07 13:21:17,477 [INFO] [degree substantial DEEPak Daiyas MOST INSPIRING VIDEO EVER.mp3] No doc found. Starting API processing...
+2026-04-07 13:21:18,179 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:21:21,082 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG2QxLv_a9jz0VxsPt8ggb-xH9rvr1Kk-ZxuJmKGYCveUGnMke12Kb3qLydONuyCWhG94gULE2W_N5bCjkPPWiea0do6HMHs5C84QiW0UEY&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:21:21,083 [INFO] [degree substantial DEEPak Daiyas MOST INSPIRING VIDEO EVER.mp3] Upload complete. Generating text...
+2026-04-07 13:21:21,084 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:21:32,985 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:21:34,839 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/ix49zl8xu2wk "HTTP/1.1 200 OK"
+2026-04-07 13:21:34,895 [INFO] [degree substantial DEEPak Daiyas MOST INSPIRING VIDEO EVER.mp3] Saved new individual document.
+2026-04-07 13:21:34,895 [INFO] [null Value what you already have your education food water home friends work and family These arent just things theyre blessings that many dream of Priy.mp3] No doc found. Starting API processing...
+2026-04-07 13:21:35,586 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 13:21:38,216 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG1zIsHghDzqZe6Wk526o_bK_FEghZRDIIvoO6luwS5p4hn3PS2OsgPNbnGfQXywBV8Isz_N-Tm0TfLeeCeDy1gwR8m4EGz_TF6dkbrGQOc&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 13:21:38,217 [INFO] [null Value what you already have your education food water home friends work and family These arent just things theyre blessings that many dream of Priy.mp3] Upload complete. Generating text...
+2026-04-07 13:21:38,217 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 13:21:57,703 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 13:22:00,042 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/wphuto864gps "HTTP/1.1 200 OK"
+2026-04-07 13:22:00,099 [INFO] [null Value what you already have your education food water home friends work and family These arent just things theyre blessings that many dream of Priy.mp3] Saved new individual document.
+2026-04-07 13:22:00,100 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 13:22:01,586 [INFO] === Success! Master doc for [main folder] saved ===
+2026-04-07 15:00:24,248 [INFO] Scanning and aggressively sanitizing filenames...
+2026-04-07 15:00:24,250 [INFO] === Processing Directory: [main folder] (1 files) ===
+2026-04-07 15:00:24,253 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] No doc found. Starting API processing...
+2026-04-07 15:00:25,401 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files "HTTP/1.1 200 OK"
+2026-04-07 15:00:26,567 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0vN0mX05uSeOMfSQ4NvCFCdjb8pFqgcaF-5psXiYtLcc0UchW4ltQDonTbb7Oh09wIAWVf7qhJg2GNCFlkzhIM8yX50BmFwOq0D3Fdyg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 15:00:27,396 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0vN0mX05uSeOMfSQ4NvCFCdjb8pFqgcaF-5psXiYtLcc0UchW4ltQDonTbb7Oh09wIAWVf7qhJg2GNCFlkzhIM8yX50BmFwOq0D3Fdyg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 15:00:30,145 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AMNfjG0vN0mX05uSeOMfSQ4NvCFCdjb8pFqgcaF-5psXiYtLcc0UchW4ltQDonTbb7Oh09wIAWVf7qhJg2GNCFlkzhIM8yX50BmFwOq0D3Fdyg&upload_protocol=resumable "HTTP/1.1 200 OK"
+2026-04-07 15:00:30,147 [INFO] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Upload complete. Generating text...
+2026-04-07 15:00:30,148 [INFO] AFC is enabled with max remote calls: 10.
+2026-04-07 15:00:56,303 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-07 15:00:56,306 [WARNING] [What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3] Attempt 1 failed: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 15:00:59,153 [INFO] HTTP Request: DELETE https://generativelanguage.googleapis.com/v1beta/files/qx5ha5yvy9xr "HTTP/1.1 200 OK"
+2026-04-07 15:00:59,154 [INFO] Building/Updating continuous Master Document for [main folder]...
+2026-04-07 15:00:59,241 [ERROR] Skipping What do we live for Reacting to Dead Poets Society The Philosophy of Meaning.mp3 in master doc due to failure: Gemini returned an empty response. This almost always means the audio triggered Google's Safety Filters (e.g., violence, self-harm, hate speech).
+2026-04-07 15:00:59,269 [INFO] === Success! Master doc for [main folder] saved ===
