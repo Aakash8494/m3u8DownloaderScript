@@ -5,8 +5,8 @@ import traceback
 from dotenv import load_dotenv
 from docx import Document
 
-# --- NEW GEMINI SDK ---
-from google import genai
+# --- NEW CLAUDE SDK ---
+import anthropic
 # ----------------------
 
 # 1. Force Python to use the exact folder where this script is located
@@ -17,25 +17,26 @@ os.chdir(script_dir)
 load_dotenv()
 
 # Safely retrieve API Key
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("ANTHROPIC_API_KEY")
 if not api_key:
-    print("❌ Error: GEMINI_API_KEY not found. Please ensure your .env file is in this folder.")
+    print("❌ Error: ANTHROPIC_API_KEY not found. Please ensure your .env file is in this folder.")
     input("\nPress Enter to exit...")
     exit(1)
 
-# Initialize the NEW Gemini Client
-client = genai.Client(api_key=api_key)
+# Initialize the Claude Client
+client = anthropic.Anthropic(api_key=api_key)
 
 # ==========================================
 # SETTINGS
 # ==========================================
-# Options: 'gemini-2.5-pro' (smarter) OR 'gemini-2.5-flash' (faster/cheaper)
-AI_MODEL = 'gemini-2.5-pro'
+# Options: 'claude-3-5-sonnet-latest' (smarter) OR 'claude-3-5-haiku-latest' (faster/cheaper)
+AI_MODEL = 'claude-3-5-sonnet-latest'
 
 # ==========================================
 # PROMPTS
 # ==========================================
-PROMPT = """
+# For Claude, instructions work best as a "System Prompt"
+SYSTEM_PROMPT = """
 You are an expert transcriber, strict text formatter, and translator. I am providing you with a raw, unpunctuated text transcript from a video.
 
 CRITICAL LANGUAGE AND SCRIPT RULE:
@@ -56,7 +57,7 @@ Find the most important keywords, phrases, or main ideas inside each formatted p
 Return only the final formatted text. Do not add any extra introductory or concluding sentences before or after the text.
 """
 
-TITLE_PROMPT = """
+TITLE_SYSTEM_PROMPT = """
 If the following text contains any Hindi/Devanagari script, transliterate it completely into Hinglish (Hindi words written using the English alphabet). 
 If it is already entirely in English, return it exactly as is. 
 Only return the transformed title text. Do not add quotes, introductions, or extra punctuation.
@@ -118,33 +119,43 @@ def create_formatted_doc(formatted_text: str, original_filename: str, output_pat
                         
     doc.save(output_path)
 
-def generate_with_retry(prompt_text, text_content, max_retries=5):
-    """Wraps the Gemini API call with a retry loop for 503/429 errors."""
+def generate_with_retry(system_prompt, user_content, max_retries=5):
+    """Wraps the Claude API call with a retry loop for limits/errors."""
     retry_delay = 5 # Start with a 5 second delay
     
     for attempt in range(max_retries):
         try:
-            response = client.models.generate_content(
+            response = client.messages.create(
                 model=AI_MODEL,
-                contents=f"{prompt_text}\n\n{text_content}"
+                max_tokens=4096, # Claude requires a max_tokens parameter
+                temperature=0,   # Set to 0 for strict formatting adherence
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": user_content}
+                ]
             )
-            return response.text
+            return response.content[0].text
+            
+        except anthropic.RateLimitError as e:
+            print(f"\n🔍 DEBUG - Rate Limit Hit: {e}")
+            if attempt < max_retries - 1:
+                print(f"  ⚠️ Rate limit reached (Attempt {attempt + 1}/{max_retries}). Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2
+                continue
+            raise e
+            
+        except anthropic.InternalServerError as e:
+            print(f"\n🔍 DEBUG - Anthropic Server Error: {e}")
+            if attempt < max_retries - 1:
+                print(f"  ⚠️ Server busy (Attempt {attempt + 1}/{max_retries}). Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2
+                continue
+            raise e
             
         except Exception as e:
-            error_msg = str(e)
-            
-            # Print the EXACT error from Gemini so you aren't guessing
-            print(f"\n🔍 DEBUG - Gemini API Error: {error_msg}\n")
-            
-            # If the server is busy (503) or we hit a rate limit (429)
-            if "503" in error_msg or "429" in error_msg or "UNAVAILABLE" in error_msg or "Quota" in error_msg:
-                if attempt < max_retries - 1:
-                    print(f"  ⚠️ Server busy (Attempt {attempt + 1}/{max_retries}). Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
-                    retry_delay *= 2 # Double the wait time for the next attempt
-                    continue
-            
-            # If it's a different error or we ran out of retries, throw the error
+            print(f"\n🔍 DEBUG - Unexpected API Error: {str(e)}\n")
             raise e
             
     return None
@@ -186,10 +197,10 @@ def main():
         print(f"❌ Failed to read document: {e}")
         return
 
-    # Clean the original filename using TITLE_PROMPT
+    # Clean the original filename using TITLE_SYSTEM_PROMPT
     try:
         print("🤖 Cleaning title...")
-        clean_title = generate_with_retry(TITLE_PROMPT, f"Title to clean: {name_without_ext}", max_retries=3)
+        clean_title = generate_with_retry(TITLE_SYSTEM_PROMPT, f"Title to clean: {name_without_ext}", max_retries=3)
         if not clean_title:
             clean_title = name_without_ext
     except Exception:
@@ -199,12 +210,12 @@ def main():
     output_filename = f"{clean_title}_Formatted.docx"
     output_path = os.path.join(dir_name, output_filename)
 
-    print(f"\n🤖 Sending text to Gemini ({AI_MODEL}) for formatting... (This may take a moment for large files)")
+    print(f"\n🤖 Sending text to Claude ({AI_MODEL}) for formatting... (This may take a moment for large files)")
     try:
-        formatted_text = generate_with_retry(PROMPT, f"Transcript: {raw_text}", max_retries=5)
+        formatted_text = generate_with_retry(SYSTEM_PROMPT, f"Transcript: {raw_text}", max_retries=5)
         
         if not formatted_text:
-            print("❌ Gemini returned an empty response.")
+            print("❌ Claude returned an empty response.")
             return
             
     except Exception as e:
