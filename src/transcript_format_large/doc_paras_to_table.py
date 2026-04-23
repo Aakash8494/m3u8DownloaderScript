@@ -41,9 +41,11 @@ def extract_to_single_column(input_path: Path):
     for para in doc.paragraphs:
         if not para.text.strip():
             continue # Skip blank lines
+            
+        is_title = is_title_paragraph(para)
 
         # 3. Check if we need a new row or if we add to the current one
-        if current_cell is None or is_title_paragraph(para):
+        if current_cell is None or is_title:
             # Create a brand new row for this Title
             row = table.add_row()
             current_cell = row.cells[0]
@@ -66,6 +68,14 @@ def extract_to_single_column(input_path: Path):
                 new_run.bold = run.bold
                 new_run.italic = run.italic
                 # You can also add new_run.underline = run.underline here if needed
+
+        # ---------------------------------------------------------
+        # MODIFICATION: Add a newline after the title and at para end
+        # ---------------------------------------------------------
+        # We append a soft line break (\n) directly to the end of the paragraph. 
+        # Since this runs for every processed paragraph, it covers both 
+        # the title paragraphs and the regular text paragraphs.
+        new_para.add_run('\n')
 
     print(f"Processed {blocks_processed} grouped blocks into the single-column table.")
 
