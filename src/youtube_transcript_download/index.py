@@ -1,5 +1,6 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 import argparse
+import pyperclip  # 👈 Imported pyperclip
 
 def get_video_id(url):
     if "v=" in url:
@@ -27,10 +28,11 @@ def download_transcript(video_url, languages):
     except Exception as e:
         print("❌ Error:", e)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download YouTube transcript")
-    parser.add_argument("url", help="YouTube video URL")
+    
+    # 👈 Made the URL argument optional (nargs="?")
+    parser.add_argument("url", nargs="?", default=None, help="YouTube video URL (leave blank to use clipboard)")
     parser.add_argument(
         "--lang",
         nargs="+",
@@ -40,7 +42,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    download_transcript(args.url, args.lang)
+    # 👈 New Logic: Check CLI arguments first, then fallback to clipboard
+    target_url = args.url
 
+    if not target_url:
+        clipboard_text = pyperclip.paste().strip()
+        # Basic check to see if the clipboard text looks like a YouTube link
+        if "youtube.com" in clipboard_text or "youtu.be" in clipboard_text:
+            print(f"📋 Found URL in clipboard: {clipboard_text}")
+            target_url = clipboard_text
+        else:
+            print("❌ Error: No URL provided via command line, and no valid YouTube URL found in clipboard.")
+            exit(1)
 
-    # py index.py https://www.youtube.com/watch?v=j7yjw4D6Pi4 --lang en-IN en hi
+    download_transcript(target_url, args.lang)
