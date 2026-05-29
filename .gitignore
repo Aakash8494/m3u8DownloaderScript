@@ -3,4 +3,5 @@ output_videos/.DS_Store
 src/mp3_transcribe_gemini/.env
 src/transcribe/.env
 .env
-src/m3u8_downloader_generic
+src/m3u8_downloader_generic/*
+!src/m3u8_downloader_generic/*.py
