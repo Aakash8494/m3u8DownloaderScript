@@ -6,26 +6,24 @@ def clean_filename(title):
     return re.sub(r'[\\/*?:"<>|]', "", title)
 
 def download_m3u8(video_url, video_title):
-    # Clean the title just in case you typed any special characters
     safe_title = clean_filename(video_title)
     
     # Configuration options
     ydl_opts = {
-        # 1. Use your custom title for the filename
-        'outtmpl': f'{safe_title}.mp4', 
+        # 1. Use your custom title, but let yt-dlp handle the temporary extension
+        'outtmpl': f'{safe_title}.%(ext)s', 
         
-        # 2. Force 360p resolution. 
-        # It looks for 360p first. If it can't find it, it grabs the next best thing under 360p.
-        'format': 'best[height<=360]/best', 
+        # 2. Force yt-dlp to merge the separate audio and video tracks into an MP4
+        'merge_output_format': 'mp4'
     }
 
     print(f"\nConnecting to the stream for '{safe_title}'...")
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([video_url])
-        print(f"✅ Download complete! Saved as '{safe_title}.mp4'")
+        print(f"\n✅ Download complete! Saved as '{safe_title}.mp4'")
     except Exception as e:
-        print(f"❌ An error occurred: {e}")
+        print(f"\n❌ An error occurred: {e}")
 
 if __name__ == "__main__":
     print("--- Video Downloader ---")
