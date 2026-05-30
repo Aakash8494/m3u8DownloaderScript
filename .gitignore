@@ -5,3 +5,5 @@ src/transcribe/.env
 .env
 src/m3u8_downloader_generic/*
 !src/m3u8_downloader_generic/*.py
+!src/m3u8_downloader_generic/*.txt
+!src/m3u8_downloader_generic/*.js
