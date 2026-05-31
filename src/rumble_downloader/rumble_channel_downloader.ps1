@@ -4,6 +4,8 @@ python -m yt_dlp `
     --concurrent-fragments 4 `
     --download-archive rajneesh_archive.txt `
     -o "%(uploader)s/%(upload_date)s - %(title)s [%(id)s].%(ext)s" `
+    --write-thumbnail `
     --embed-thumbnail `
+    --convert-thumbnails jpg `
     --embed-metadata `
     "https://www.youtube.com/@ytRajneeshyt"
