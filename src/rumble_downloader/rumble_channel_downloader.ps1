@@ -1,0 +1,1 @@
+python -m yt_dlp -f "bestvideo[height<=480][format_id!*=timeline]+bestaudio/best[height<=480][format_id!*=timeline]" --playlist-end 60 "https://rumble.com/c/TateSpeech"

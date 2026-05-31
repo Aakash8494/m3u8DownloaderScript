@@ -7,3 +7,4 @@ src/m3u8_downloader_generic/*
 !src/m3u8_downloader_generic/*.py
 !src/m3u8_downloader_generic/*.txt
 !src/m3u8_downloader_generic/*.js
+src/youtube_audio_downloader/Downloads
