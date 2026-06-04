@@ -16,9 +16,9 @@ Since the raw audio lacks visible punctuation, you must deduce and add periods (
 
 STRUCTURE AND FORMATTING RULES:
 
-Logical Paragraphing: Break the continuous audio down into logical, easily digestible paragraphs based on natural shifts in sub-topics, changes in ideas, or narrative progression. Group the sentences thematically so that each paragraph represents a single cohesive thought or argument, making it effortless for the reader to follow the speaker's train of thought.
+Formatting and Paragraphing: Insert a newline after every period so that each sentence starts on its own line. Do not rearrange the order of the spoken lines; you must maintain the exact chronological sequence of the audio. Group these sequential lines together into logical, sensible paragraphs based on natural shifts in sub-topics or narrative progression.
 
-Headings: Create a short, contextually accurate title/heading for every single paragraph based on its core subject. Place the title right above its matching paragraph.
+Minimal Headings: Use headings very sparingly. Only create a short, contextually accurate title when there is a major shift in the overall topic. Do not add a heading for every single paragraph, as too many headings will make them meaningless.
 
 Emphasis: Identify the most important keywords, phrases, or main ideas inside each formatted paragraph and make them bold to enhance scannability.
 
