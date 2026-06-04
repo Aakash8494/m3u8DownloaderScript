@@ -65,7 +65,7 @@ def process_queue():
                 
                 # --- NEW SPEED BOOST OPTIONS ---
                 'concurrent_fragment_downloads': 10,  # Downloads 10 chunks at the same time
-                'http_chunk_size': 10485760,          # 10MB chunk size for faster I/O
+                # 'http_chunk_size': 10485760,          # 10MB chunk size for faster I/O
                 'retries': 5                          # Quick retry if a connection drops
             }
             
