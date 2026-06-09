@@ -1,40 +1,59 @@
 {
     "version": "2.0.0",
     "tasks": [
+        // {
+        //     "label": "Terminal 1: MP3",
+        //     "type": "shell",
+        //     "command": "powershell",
+        //     "args": [
+        //         "-NoExit",
+        //         "-Command",
+        //         "& .\\venv\\Scripts\\Activate.ps1; cd src\\transcribe_mp3;"
+        //     ],
+        //     "presentation": {
+        //         "reveal": "always",
+        //         "panel": "new"
+        //     }
+        // },
         {
-            "label": "transcribe_mp3",
+            "label": "Terminal 2: YouTube",
             "type": "shell",
             "command": "powershell",
             "args": [
                 "-NoExit",
                 "-Command",
-                "cd src\\transcribe_mp3; & C:\\m3u8\\venv\\Scripts\\Activate.ps1;"
+                "& .\\venv\\Scripts\\Activate.ps1; cd src\\youtube_transcript_download; py index.py"
             ],
-            "group": "none",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
-            },
-            "runOptions": {
-                "runOn": "folderOpen"
             }
         },
+        // {
+        //     "label": "Terminal 3: Video to Audio",
+        //     "type": "shell",
+        //     "command": "powershell",
+        //     "args": [
+        //         "-NoExit",
+        //         "-Command",
+        //         "& .\\venv\\Scripts\\Activate.ps1; cd src\\video_to_audio;"
+        //     ],
+        //     "presentation": {
+        //         "reveal": "always",
+        //         "panel": "new"
+        //     }
+        // },
         {
-            "label": "transcribe_youtube",
-            "type": "shell",
-            "command": "powershell",
-            "args": [
-                "-NoExit",
-                "-Command",
-                "cd src\\transcribe_youtube; & C:\\m3u8\\venv\\Scripts\\Activate.ps1;"
+            "label": "Launch All Terminals",
+            "dependsOn": [
+                // "Terminal 1: MP3",
+                "Terminal 2: YouTube",
+                // "Terminal 3: Video to Audio"
             ],
-            "group": "none",
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
-            "runOptions": {
-                "runOn": "folderOpen"
+            "dependsOrder": "parallel",
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
         }
     ]

@@ -34,3 +34,8 @@ src/Course_Downloader/*
 !src/Course_Downloader/*.js
 
 src/youtube_audio_downloader/Downloads
+
+src/youtube_transcript_download/*
+!src/youtube_transcript_download/*.py
+!src/youtube_transcript_download/*.txt
+!src/youtube_transcript_download/*.js
