@@ -37,7 +37,8 @@ except ImportError:
     print("   Make sure ap_core.py is in the same folder as this script.")
     sys.exit(1)
 
-VIDEO_EXTENSIONS = (".mp4", ".mkv", ".mov", ".m4v")
+# VIDEO_EXTENSIONS = (".mp4", ".mkv", ".mov", ".m4v")
+VIDEO_EXTENSIONS = ()
 AUDIO_AS_VIDEO_EXTENSIONS = (".opus", ".m4a", ".mp3", ".wav")
 
 
